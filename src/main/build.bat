@@ -13,9 +13,6 @@ rmdir build\resources /S /Q
 
 call gradlew.bat build
 
-xcopy "build\libs\*.jar" "D:\GitHub\TektopiaBanker\beta\1.0\*.jar" /Y /Q
-xcopy "updateforge.json" "D:\GitHub\TektopiaBanker\beta\1.0\updateforge.json" /Y /Q
-
 cd /d "%WORKDIR%"
 
 pause
