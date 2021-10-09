@@ -36,6 +36,7 @@ public class TraderScheduler implements IScheduler {
 			return;
 		
 		this.resetNight = false;
+		this.checkedVillages = true;
 
 		// get a list of the villages from the VillageManager 
 		List<Village> villages = TektopiaUtils.getVillages(world);
@@ -67,7 +68,5 @@ public class TraderScheduler implements IScheduler {
 				}
 			}
 		});
-		
-		this.checkedVillages = true;
 	}
 }
