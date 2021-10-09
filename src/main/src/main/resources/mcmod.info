@@ -1,18 +1,18 @@
 {
     "modListVersion": 2,
     "modList": [{
-        "modid": "tektopiabanker",
-        "name": "Tektopia Banker",
-        "description": "§fThis extension adds a village banker for use with §bTektopia§a ${tektopia_version}§f.
+        "modid": "tektopiatrader",
+        "name": "Tektopia Trader",
+        "description": "§fThis extension adds a custom village trader for use with §bTektopia§a ${tektopia_version}§f.
 §fBuilt with:
     §bForge§f ${forge_version}",
         "version": "${mod_version}",
         "mcversion": "${minecraft_version}",
-        "url": "https://www.curseforge.com/minecraft/mc-mods/tektopia-banker",
-        "updateUrl": "https://github.com/Bletch1971/TektopiaBanker",
+        "url": "https://www.curseforge.com/minecraft/mc-mods/tektopia-trader",
+        "updateUrl": "https://github.com/Bletch1971/TektopiaTrader",
         "authorList": ["§6Bletch§r"],
         "credits": "TangoTek for creating the TekTopia mod",
-        "logoFile": "assets/tektopiabanker/textures/logo.png",
+        "logoFile": "assets/tektopiatrader/textures/logo.png",
         "screenshots": [],
         "parent": "",
         "requiredMods": ["tektopia"],

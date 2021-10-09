@@ -1,0 +1,77 @@
+#en_US
+#This is the Main language configuration file
+#
+#If you want to color code the text then I recommend you visit http://www.minecraftwiki.net/wiki/Formatting_codes#Color_codes
+#To create the § symbol which is used for assigning a color to the following text press Alt + 21 on Windows. For other OSes, view the above link.
+#This file needs to be UTF-8 encoded to work with MC 1.7+
+
+# Formatting codes
+# Code	Name
+# §0	black
+# §1	dark_blue
+# §2	dark_green
+# §3	dark_aqua
+# §4	dark_red
+# §5	dark_purple	
+# §6	gold
+# §7	gray
+# §8	dark_gray
+# §9	blue
+# §a	green
+# §b	aqua
+# §c	red
+# §d	light_purple
+# §e	yellow
+# §f	white
+
+# §k	Obfuscated
+# §l	Bold
+# §m	Strikethrough
+# §n	Underline
+# §o	Italic
+# §r	Reset
+
+
+#==========
+#= Config =
+#==========
+
+#== Debug ==
+config.debug=Debug
+config.debug.tooltip=Debug settings
+
+config.debug.enableDebug=Enable Debug
+config.debug.enableDebug.tooltip=If true, debug information will be output to the console.
+
+#== Trader ==
+config.trader=Trader
+config.trader.tooltip=Trader settings
+
+config.trader.trades=Trades
+config.trader.trades.tooltip=The list of trade items to include with the trader. Each trade item = 1 emerald.
+
+
+#============
+#= Commands =
+#============
+commands.trader.usage=/trader
+commands.trader.spawn.usage=/trader spawn
+commands.trader.spawn.success=Spawning Trader at %s, %s, %s
+commands.trader.spawn.failed=Spawning Trader failed
+
+#=================
+#= Chat Messages =
+#=================
+
+#message.banker.notworktime=[Banker] It is outside work hours, come back tomorrow!
+#message.banker.notintownhall=[Banker] You are not in the Town Hall, move the bell inside the Town Hall and try again. 
+#message.banker.nosafeplace=[Banker] The banker could not find a safe place in the Town Hall.
+
+
+#============
+#= Entities =
+#============
+
+entity.trader.name=Trader
+
+entity.trader.information=The Trader is a vendor that wanders into your village. A player can trade with him to buy emeralds in exchange for specific items.
