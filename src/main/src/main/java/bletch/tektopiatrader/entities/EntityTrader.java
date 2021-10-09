@@ -219,7 +219,7 @@ public class EntityTrader extends EntityVillagerTek implements IMerchant {
 		if (this.vendorList == null && this.hasVillage()) {
 			this.vendorList = new MerchantRecipeList();
 
-			List<ItemStack> tradeItems = new ArrayList<ItemStack>();
+			List<ItemStack> itemStackList = new ArrayList<ItemStack>();
 
 			if (ModConfig.trader.trades != null && ModConfig.trader.trades.length > 0) {
 				for (String tradeItem : ModConfig.trader.trades) {
@@ -242,28 +242,27 @@ public class EntityTrader extends EntityVillagerTek implements IMerchant {
 
 					Item item = Item.getByNameOrId(itemName);
 					if (item != null) {
-						tradeItems.add(new ItemStack(item, quantity));
+						itemStackList.add(new ItemStack(item, quantity));
 					}
 				}
 			}
 			
-			// check if there are any trade items defined.
-			if (tradeItems.size() == 0) {
-				// no trade items, set to the defaults.
-				tradeItems.add(new ItemStack(Items.IRON_INGOT, 64));
-				tradeItems.add(new ItemStack(Items.GOLD_INGOT, 32));
-				tradeItems.add(new ItemStack(Items.DIAMOND, 8));
-				tradeItems.add(new ItemStack(Blocks.REDSTONE_BLOCK, 8));
-				tradeItems.add(new ItemStack(Blocks.LAPIS_BLOCK, 8));
+			if (itemStackList.size() == 0) {
+				itemStackList.add(new ItemStack(Items.IRON_INGOT, 64));
+				itemStackList.add(new ItemStack(Items.GOLD_INGOT, 32));
+				itemStackList.add(new ItemStack(Items.DIAMOND, 8));
+				itemStackList.add(new ItemStack(Blocks.REDSTONE_BLOCK, 8));
+				itemStackList.add(new ItemStack(Blocks.LAPIS_BLOCK, 8));
 			}
 
 			int tradesPerDay = Math.max(1, Math.min(99999, ModConfig.trader.tradesPerDay));
 
-			// create the vendor buying list
-			for (ItemStack itemStack : tradeItems) {
+			// create the merchant recipe list
+			for (ItemStack itemStack : itemStackList) {
 				if (itemStack == null) {
 					continue;
 				}
+				
 				this.vendorList.add(new MerchantRecipe(itemStack, ItemStack.EMPTY, new ItemStack(Items.EMERALD, 1), 0, tradesPerDay));
 			}
 		}
