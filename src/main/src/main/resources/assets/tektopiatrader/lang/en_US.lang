@@ -57,7 +57,10 @@ config.trader.trades.tooltip=The list of trade items to include with the trader.
 commands.trader.usage=/trader
 commands.trader.spawn.usage=/trader spawn
 commands.trader.spawn.success=Spawning Trader at %s, %s, %s
-commands.trader.spawn.failed=Spawning Trader failed
+commands.trader.spawn.failed=Trader spawn failed
+commands.trader.spawn.exists=Trader spawn failed...Trader already spawned
+commands.trader.spawn.noposition=Trader spawn failed...no spawn position found
+commands.trader.spawn.novillage=Trader spawn failed...no village found
 
 #=================
 #= Chat Messages =

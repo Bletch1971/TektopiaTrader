@@ -65,7 +65,7 @@ public class EntityTrader extends EntityVillagerTek implements IMerchant {
 
 	public EntityTrader(World worldIn) {
 		super(worldIn, (ProfessionType)null, VillagerRole.VENDOR.value | VillagerRole.VISITOR.value);
-		this.sleepOffset = 0;
+		this.sleepOffset = getSleepOffset();
 	}
 
 	protected void setupServerJobs() {
@@ -153,10 +153,6 @@ public class EntityTrader extends EntityVillagerTek implements IMerchant {
 		}
 	}
 
-//	public boolean isMale() {
-//		return true;
-//	}
-
 	public void addVillagerPosition() {
 	}
 
@@ -175,6 +171,18 @@ public class EntityTrader extends EntityVillagerTek implements IMerchant {
 	}
 
 	protected void bedCheck() {
+	}
+
+	public boolean isSleepingTime() {
+		return isSleepingTime(this.world);
+	}
+
+	public boolean isWorkTime() {
+		return isWorkTime(this.world) && !this.world.isRaining();
+	}
+
+	public boolean isLearningTime() {
+		return false;
 	}
 
 	@Nullable
@@ -333,6 +341,18 @@ public class EntityTrader extends EntityVillagerTek implements IMerchant {
 		
 		animationHandler = TekVillager.getNewAnimationHandler(EntityTrader.class);
 		setupCraftStudioAnimations(animationHandler, ANIMATION_MODEL_NAME);
+	}
+	
+	public static int getSleepOffset() {
+		return 0;
+	}
+
+	public static boolean isSleepingTime(World world) {
+		return Village.isTimeOfDay(world, (long)(SLEEP_START_TIME + getSleepOffset()), (long)(SLEEP_END_TIME + getSleepOffset()));
+	}
+
+	public static boolean isWorkTime(World world) {
+		return Village.isTimeOfDay(world, (long)WORK_START_TIME, (long)WORK_END_TIME, (long)getSleepOffset());
 	}
 	
 	protected static void setupCraftStudioAnimations(AnimationHandler<EntityTrader> animationHandler, String modelName) {

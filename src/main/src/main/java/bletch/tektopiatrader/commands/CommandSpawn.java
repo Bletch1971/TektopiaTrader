@@ -1,5 +1,6 @@
 package bletch.tektopiatrader.commands;
 
+import java.util.List;
 import java.util.function.Function;
 
 import bletch.tektopiatrader.core.ModCommands;
@@ -15,9 +16,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.tangotek.tektopia.Village;
 import net.tangotek.tektopia.VillageManager;
-import net.tangotek.tektopia.structures.VillageStructure;
-import net.tangotek.tektopia.structures.VillageStructureTownHall;
-import net.tangotek.tektopia.structures.VillageStructureType;
 
 public class CommandSpawn extends CommandVillageBase {
 
@@ -31,31 +29,39 @@ public class CommandSpawn extends CommandVillageBase {
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		if (args.length > 0) {
 			throw new WrongUsageException(ModCommands.COMMAND_PREFIX + COMMAND_NAME + ".usage", new Object[0]);
-		} else {
-			// attempt to spawn the trader
-			EntityPlayer entityPlayer = super.getCommandSenderAsPlayer(sender);
-			VillageManager villageManager = entityPlayer != null ? VillageManager.get(entityPlayer.getEntityWorld()) : null;
-			Village village = villageManager != null ? villageManager.getVillageAt(entityPlayer.getPosition()) : null;
-			
-			if (village != null) {
-				//BlockPos spawnPosition = village.getEdgeNode();
-				VillageStructure structure = village.getNearestStructure(VillageStructureType.TOWNHALL, entityPlayer.getPosition());
-				VillageStructureTownHall townHallStructure = structure != null ? (VillageStructureTownHall)structure : null;
-				BlockPos spawnPosition = townHallStructure != null ? townHallStructure.getRandomFloorTile() : null;
-				if (spawnPosition == null)
-					return;
-				
-				Boolean entitySpawned = trySpawnEntity(entityPlayer.getEntityWorld(), spawnPosition, (World w) -> new EntityTrader(w));
-				
-				if (entitySpawned) {
-					notifyCommandListener(sender, this, "commands.trader.spawn.success", new Object[] { spawnPosition.getX(), spawnPosition.getY(), spawnPosition.getZ() });
-					village.debugOut("Spawning Trader at " + spawnPosition);
-				} else {
-					notifyCommandListener(sender, this, "commands.trader.spawn.failed", new Object[0]);
-					village.debugOut("Spawning Trader failed");
-				}
-			}
+		} 
+		
+		EntityPlayer entityPlayer = super.getCommandSenderAsPlayer(sender);
+		World world = entityPlayer != null ? entityPlayer.getEntityWorld() : null;
+		
+		VillageManager villageManager = world != null ? VillageManager.get(world) : null;
+		Village village = villageManager != null && entityPlayer != null ? villageManager.getVillageAt(entityPlayer.getPosition()) : null;
+		if (village == null) {
+			notifyCommandListener(sender, this, "commands.trader.spawn.novillage", new Object[0]);
+			return;
 		}
+
+		BlockPos spawnPosition = village.getEdgeNode();
+		if (spawnPosition == null) {
+			notifyCommandListener(sender, this, "commands.trader.spawn.noposition", new Object[0]);
+			return;
+		}
+
+        List<EntityTrader> entityList = world.getEntitiesWithinAABB(EntityTrader.class, village.getAABB().grow(Village.VILLAGE_SIZE));
+        if (entityList.size() > 0) {
+			notifyCommandListener(sender, this, "commands.trader.spawn.exists", new Object[0]);
+			return;
+        }
+        
+		// attempt to spawn the trader
+		Boolean entitySpawned = trySpawnEntity(world, spawnPosition, (World w) -> new EntityTrader(w));
+		
+		if (!entitySpawned) {
+			notifyCommandListener(sender, this, "commands.trader.spawn.failed", new Object[0]);
+			return;
+		}
+		
+		notifyCommandListener(sender, this, "commands.trader.spawn.success", new Object[] { spawnPosition.getX(), spawnPosition.getY(), spawnPosition.getZ() });
 	}
 
 	private static Boolean trySpawnEntity(World world, BlockPos spawnPosition, Function<World, ?> createFunc) {
