@@ -36,19 +36,16 @@
 #= Config =
 #==========
 
-#== Debug ==
-config.debug=Debug
-config.debug.tooltip=Debug settings
-
-config.debug.enableDebug=Enable Debug
-config.debug.enableDebug.tooltip=If true, debug information will be output to the console.
-
 #== Trader ==
 config.trader=Trader
 config.trader.tooltip=Trader settings
 
 config.trader.trades=Trades
 config.trader.trades.tooltip=The list of trade items to include with the trader. Each trade item = 1 emerald.
+config.trader.tradesperday=Trades Per Day
+config.trader.tradesperday.tooltip=The number of trades that can be made for each item per day. Minimum is 1 and Maximum is 99999.
+config.trader.checksvillagesize=Checks Village Size
+config.trader.checksvillagesize.tooltip=If enabled, when trying to spawn a trader it will check the size of the village. The more villagers the less often the trader will spawn.
 
 
 #============
@@ -56,19 +53,20 @@ config.trader.trades.tooltip=The list of trade items to include with the trader.
 #============
 commands.trader.usage=/trader
 commands.trader.spawn.usage=/trader spawn
-commands.trader.spawn.success=Spawning Trader at %s, %s, %s
-commands.trader.spawn.failed=Trader spawn failed
-commands.trader.spawn.exists=Trader spawn failed...Trader already spawned
-commands.trader.spawn.noposition=Trader spawn failed...no spawn position found
-commands.trader.spawn.novillage=Trader spawn failed...no village found
+commands.trader.spawn.success=§aTrader has appeared at %s
+commands.trader.spawn.failed=§cTrader spawn failed
+commands.trader.spawn.badconditions=§cTrader spawn failed...spawn conditions not valid
+commands.trader.spawn.exists=§eTrader spawn failed...Trader already located in the village
+commands.trader.spawn.noposition=§cTrader spawn failed...no spawn position found
+commands.trader.spawn.novillage=§cTrader spawn failed...no village found
 
 #=================
 #= Chat Messages =
 #=================
 
-#message.banker.notworktime=[Banker] It is outside work hours, come back tomorrow!
-#message.banker.notintownhall=[Banker] You are not in the Town Hall, move the bell inside the Town Hall and try again. 
-#message.banker.nosafeplace=[Banker] The banker could not find a safe place in the Town Hall.
+message.trader.exists=§eTrader already located in the village
+message.trader.noposition=§cCould not find a spawn location for the Trader
+message.trader.spawned=§aTrader has appeared at %s
 
 
 #============
@@ -76,5 +74,4 @@ commands.trader.spawn.novillage=Trader spawn failed...no village found
 #============
 
 entity.trader.name=Trader
-
-entity.trader.information=The Trader is a vendor that wanders into your village. A player can trade with him to buy emeralds in exchange for specific items.
+entity.trader.information=§bThe Trader is a vendor that wanders into your village. A player can trade with them to buy emeralds in exchange for specific items.

@@ -1,15 +1,12 @@
 package bletch.tektopiatrader.commands;
 
 import java.util.List;
-import java.util.function.Function;
-
 import bletch.tektopiatrader.core.ModCommands;
 import bletch.tektopiatrader.entities.EntityTrader;
+import bletch.tektopiatrader.utils.TektopiaUtils;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
@@ -34,6 +31,11 @@ public class CommandSpawn extends CommandVillageBase {
 		EntityPlayer entityPlayer = super.getCommandSenderAsPlayer(sender);
 		World world = entityPlayer != null ? entityPlayer.getEntityWorld() : null;
 		
+		if (world == null || world.isRaining() || Village.isNightTime(world)) {
+			notifyCommandListener(sender, this, "commands.trader.spawn.badconditions", new Object[0]);
+			return;
+		}
+		
 		VillageManager villageManager = world != null ? VillageManager.get(world) : null;
 		Village village = villageManager != null && entityPlayer != null ? villageManager.getVillageAt(entityPlayer.getPosition()) : null;
 		if (village == null) {
@@ -54,26 +56,14 @@ public class CommandSpawn extends CommandVillageBase {
         }
         
 		// attempt to spawn the trader
-		Boolean entitySpawned = trySpawnEntity(world, spawnPosition, (World w) -> new EntityTrader(w));
+		Boolean entitySpawned = TektopiaUtils.trySpawnEntity(world, spawnPosition, (World w) -> new EntityTrader(w));
 		
 		if (!entitySpawned) {
 			notifyCommandListener(sender, this, "commands.trader.spawn.failed", new Object[0]);
 			return;
 		}
 		
-		notifyCommandListener(sender, this, "commands.trader.spawn.success", new Object[] { spawnPosition.getX(), spawnPosition.getY(), spawnPosition.getZ() });
+		notifyCommandListener(sender, this, "commands.trader.spawn.success", new Object[] { TektopiaUtils.formatBlockPos(spawnPosition) });
 	}
-
-	private static Boolean trySpawnEntity(World world, BlockPos spawnPosition, Function<World, ?> createFunc) {
-		if (world == null || spawnPosition == null || createFunc == null)
-			return false;
-		
-		EntityLiving entity = (EntityLiving)createFunc.apply(world);
-		if (entity == null)
-			return false;
-		
-		entity.setLocationAndAngles((double)spawnPosition.getX() + 0.5D, (double)spawnPosition.getY(), (double)spawnPosition.getZ() + 0.5D, 0.0F, 0.0F);
-		entity.onInitialSpawn(world.getDifficultyForLocation(spawnPosition), (IEntityLivingData)null);
-		return world.spawnEntity(entity);
-   }
+    
 }

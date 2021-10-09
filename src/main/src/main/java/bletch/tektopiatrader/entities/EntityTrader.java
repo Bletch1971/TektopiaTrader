@@ -246,23 +246,25 @@ public class EntityTrader extends EntityVillagerTek implements IMerchant {
 					}
 				}
 			}
+			
 			// check if there are any trade items defined.
 			if (tradeItems.size() == 0) {
 				// no trade items, set to the defaults.
 				tradeItems.add(new ItemStack(Items.IRON_INGOT, 64));
 				tradeItems.add(new ItemStack(Items.GOLD_INGOT, 32));
 				tradeItems.add(new ItemStack(Items.DIAMOND, 8));
-				tradeItems.add(new ItemStack(Blocks.REDSTONE_BLOCK, 16));
-				tradeItems.add(new ItemStack(Blocks.LAPIS_BLOCK, 16));
+				tradeItems.add(new ItemStack(Blocks.REDSTONE_BLOCK, 8));
+				tradeItems.add(new ItemStack(Blocks.LAPIS_BLOCK, 8));
 			}
+
+			int tradesPerDay = Math.max(1, Math.min(99999, ModConfig.trader.tradesPerDay));
 
 			// create the vendor buying list
 			for (ItemStack itemStack : tradeItems) {
 				if (itemStack == null) {
 					continue;
 				}
-
-				this.vendorList.add(new MerchantRecipe(itemStack, ItemStack.EMPTY, new ItemStack(Items.EMERALD, 1), 0, 99999));
+				this.vendorList.add(new MerchantRecipe(itemStack, ItemStack.EMPTY, new ItemStack(Items.EMERALD, 1), 0, tradesPerDay));
 			}
 		}
 	}

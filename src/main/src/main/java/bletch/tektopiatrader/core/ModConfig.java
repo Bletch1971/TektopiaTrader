@@ -24,26 +24,23 @@ public class ModConfig {
 		
 	}
 	
-	@Config.LangKey("config.debug")
-	public static final Debug debug = new Debug();
-	
 	@Config.LangKey("config.trader")
 	public static final Trader trader = new Trader();
-	
-	public static class Debug {
-		
-		@Config.Comment("If true, debug information will be output to the console.")
-		@Config.LangKey("config.debug.enableDebug")
-		public boolean enableDebug = false;
-		
-	}
 	
 	public static class Trader {
 		
 		@Config.Comment("The list of trade items for the trader, each trade item is worth 1 emerald. Must be in the format <modid>:<item/block>*<quantity> (Eg. minecraft:iron_ingot*64)")
 		@Config.LangKey("config.trader.trades")
-		public String[] trades = new String[] {"minecraft:iron_ingot*64", "minecraft:gold_ingot*32", "minecraft:diamond*8", "minecraft:redstone_block*16", "minecraft:lapis_block*16"};
-	
+		public String[] trades = new String[] {"minecraft:iron_ingot*64", "minecraft:gold_ingot*32", "minecraft:diamond*8", "minecraft:redstone_block*8", "minecraft:lapis_block*8"};
+
+		@Config.Comment("The number of trades that can be made for each item per day. Default: 5")
+		@Config.LangKey("config.trader.tradesperday")
+		@Config.RangeInt(min = 1, max = 99999)
+		public int tradesPerDay = 5;
+		
+		@Config.Comment("If enabled, when trying to spawn a trader it will check the size of the village. The more villagers the less often the trader will spawn. Default: True")
+		@Config.LangKey("config.trader.checksvillagesize")
+		public Boolean checksVillageSize = true;
 	}
 	
 }

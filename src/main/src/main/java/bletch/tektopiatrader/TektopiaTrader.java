@@ -9,6 +9,7 @@ import bletch.tektopiatrader.core.ModCommonProxy;
 import bletch.tektopiatrader.core.ModDetails;
 import bletch.tektopiatrader.core.ModEntities;
 import bletch.tektopiatrader.schedulers.ScheduleManager;
+import bletch.tektopiatrader.schedulers.TraderScheduler;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.event.RegistryEvent;
@@ -44,7 +45,6 @@ public class TektopiaTrader {
 		instance = this;
 		
 		proxy.preInitialize(e);
-		proxy.resetDebug();
 	}
 	  
 	@Mod.EventHandler
@@ -68,6 +68,7 @@ public class TektopiaTrader {
 
 		// create the schedule manager
 		scheduleManager = new ScheduleManager(world);
+		scheduleManager.addScheduler(new TraderScheduler());
 	}
 	
     @EventBusSubscriber
