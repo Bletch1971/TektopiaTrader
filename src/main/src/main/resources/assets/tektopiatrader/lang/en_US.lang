@@ -77,11 +77,13 @@ commands.trader.kill.success=§aTrader has been killed
 #= Chat Messages =
 #=================
 
-message.trader.exists=§eTrader already located in the village
+message.trader.exists=§eTrader already located in village %s
 message.trader.noposition=§cCould not find a spawn location for the Trader
+message.trader.noposition.village=§cCould not find a spawn location for the Trader in village %s
 message.trader.spawned=§aTrader has appeared at %s
-message.trader.villagecheckfailed=§cTrader village check failed, village size %s; check value %s
-message.trader.villagechecksuccess=§cTrader village check success, village size %s; check value %s
+message.trader.spawned.village=§aTrader has appeared in village %s at %s
+message.trader.villagecheckfailed=§cTrader village check failed, village  %s; size %s; check value %s
+message.trader.villagechecksuccess=§cTrader village check success, village  %s; size %s; check value %s
 
 
 #============

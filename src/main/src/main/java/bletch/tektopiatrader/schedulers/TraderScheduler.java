@@ -47,6 +47,8 @@ public class TraderScheduler implements IScheduler {
 
 		// cycle through each village
 		villages.forEach((v) -> {
+			
+			String villageName = v.getName();
 
 			// get the village level (1-5) and test to spawn - bigger villages will reduce the number of spawns of the Trader.
 			int villageLevel = ModConfig.trader.checksVillageSize ? TektopiaUtils.getVillageLevel(v) : 1;
@@ -54,7 +56,7 @@ public class TraderScheduler implements IScheduler {
 			
 			if (villageLevel > 0 && villageCheck == 0) {
 				
-				LoggerUtils.info(TextUtils.translate("message.trader.villagechecksuccess", new Object[] { villageLevel, villageCheck }), true);
+				LoggerUtils.info(TextUtils.translate("message.trader.villagechecksuccess", new Object[] { villageName, villageLevel, villageCheck }), true);
 				
 				// get a list of the Traders in the village
 				List<EntityTrader> entityList = world.getEntitiesWithinAABB(EntityTrader.class, v.getAABB().grow(Village.VILLAGE_SIZE));
@@ -65,18 +67,18 @@ public class TraderScheduler implements IScheduler {
 					// attempt spawn
 					if (TektopiaUtils.trySpawnEntity(world, spawnPosition, (World w) -> new EntityTrader(w))) {
 						v.sendChatMessage(new TextComponentTranslation("message.trader.spawned", new Object[] { TektopiaUtils.formatBlockPos(spawnPosition) }));
-						LoggerUtils.info(TextUtils.translate("message.trader.spawned", new Object[] { TektopiaUtils.formatBlockPos(spawnPosition) }), true);
+						LoggerUtils.info(TextUtils.translate("message.trader.spawned.village", new Object[] { villageName, TektopiaUtils.formatBlockPos(spawnPosition) }), true);
 					} else {
 						v.sendChatMessage(new TextComponentTranslation("message.trader.noposition", new Object[0]));
-						LoggerUtils.info(TextUtils.translate("message.trader.noposition", new Object[0]), true);
+						LoggerUtils.info(TextUtils.translate("message.trader.noposition.village", new Object[] { villageName }), true);
 					}
 					
 				} else {
-					LoggerUtils.info(TextUtils.translate("message.trader.exists", new Object[0]), true);
+					LoggerUtils.info(TextUtils.translate("message.trader.exists", new Object[] { villageName }), true);
 				}
 				
 			} else {
-				LoggerUtils.info(TextUtils.translate("message.trader.villagecheckfailed", new Object[] { villageLevel, villageCheck }), true);
+				LoggerUtils.info(TextUtils.translate("message.trader.villagecheckfailed", new Object[] { villageName, villageLevel, villageCheck }), true);
 			}
 		});
 	}
