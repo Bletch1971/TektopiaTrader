@@ -10,6 +10,7 @@ import bletch.tektopiatrader.core.ModDetails;
 import bletch.tektopiatrader.core.ModEntities;
 import bletch.tektopiatrader.schedulers.ScheduleManager;
 import bletch.tektopiatrader.schedulers.TraderScheduler;
+import bletch.tektopiatrader.utils.LoggerUtils;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.event.RegistryEvent;
@@ -59,16 +60,25 @@ public class TektopiaTrader {
     
 	@Mod.EventHandler
 	public void onServerStarting(final FMLServerStartingEvent e) {
+		
+		LoggerUtils.debug("Starting registerServerCommand...");
+		
 		// register commands
 		ModCommands commands = new ModCommands();
 		e.registerServerCommand(commands);
 		commands.registerNodes();
 		
+		LoggerUtils.debug("Finished registerServerCommand...");
+		
 		World world = e.getServer().getEntityWorld();
+		
+		LoggerUtils.debug("Starting ScheduleManager setup...");
 
 		// create the schedule manager
 		scheduleManager = new ScheduleManager(world);
 		scheduleManager.addScheduler(new TraderScheduler());
+		
+		LoggerUtils.debug("Finished ScheduleManager setup...");
 	}
 	
     @EventBusSubscriber

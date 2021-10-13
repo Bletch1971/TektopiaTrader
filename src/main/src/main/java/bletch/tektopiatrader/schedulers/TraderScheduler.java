@@ -4,7 +4,9 @@ import java.util.List;
 
 import bletch.tektopiatrader.core.ModConfig;
 import bletch.tektopiatrader.entities.EntityTrader;
+import bletch.tektopiatrader.utils.LoggerUtils;
 import bletch.tektopiatrader.utils.TektopiaUtils;
+import bletch.tektopiatrader.utils.TextUtils;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
@@ -48,7 +50,11 @@ public class TraderScheduler implements IScheduler {
 
 			// get the village level (1-5) and test to spawn - bigger villages will reduce the number of spawns of the Trader.
 			int villageLevel = ModConfig.trader.checksVillageSize ? TektopiaUtils.getVillageLevel(v) : 1;
-			if (villageLevel > 0 && world.rand.nextInt(villageLevel) == 0) {
+			int villageCheck = world.rand.nextInt(villageLevel);
+			
+			if (villageLevel > 0 && villageCheck == 0) {
+				
+				LoggerUtils.debug(TextUtils.translate("message.trader.villagechecksuccess", new Object[] { villageLevel, villageCheck }), true);
 				
 				// get a list of the Traders in the village
 				List<EntityTrader> entityList = world.getEntitiesWithinAABB(EntityTrader.class, v.getAABB().grow(Village.VILLAGE_SIZE));
@@ -59,13 +65,18 @@ public class TraderScheduler implements IScheduler {
 					// attempt spawn
 					if (TektopiaUtils.trySpawnEntity(world, spawnPosition, (World w) -> new EntityTrader(w))) {
 						v.sendChatMessage(new TextComponentTranslation("message.trader.spawned", new Object[] { TektopiaUtils.formatBlockPos(spawnPosition) }));
+						LoggerUtils.debug(TextUtils.translate("message.trader.spawned", new Object[] { TektopiaUtils.formatBlockPos(spawnPosition) }), true);
 					} else {
 						v.sendChatMessage(new TextComponentTranslation("message.trader.noposition", new Object[0]));
+						LoggerUtils.debug(TextUtils.translate("message.trader.noposition", new Object[0]), true);
 					}
 					
 				} else {
-					v.debugOut(new TextComponentTranslation("message.trader.exists", new Object[0]).getFormattedText());
+					LoggerUtils.debug(TextUtils.translate("message.trader.exists", new Object[0]), true);
 				}
+				
+			} else {
+				LoggerUtils.debug(TextUtils.translate("message.trader.villagecheckfailed", new Object[] { villageLevel, villageCheck }), true);
 			}
 		});
 	}

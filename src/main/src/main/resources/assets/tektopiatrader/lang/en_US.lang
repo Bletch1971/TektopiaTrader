@@ -36,6 +36,13 @@
 #= Config =
 #==========
 
+#== Debug ==
+config.debug=Debug
+config.debug.tooltip=Debug settings
+
+config.debug.enableDebug=Enable Debug
+config.debug.enableDebug.tooltip=If true, debug information will be output to the console.
+
 #== Trader ==
 config.trader=Trader
 config.trader.tooltip=Trader settings
@@ -67,6 +74,8 @@ commands.trader.spawn.novillage=§cTrader spawn failed...no village found
 message.trader.exists=§eTrader already located in the village
 message.trader.noposition=§cCould not find a spawn location for the Trader
 message.trader.spawned=§aTrader has appeared at %s
+message.trader.villagecheckfailed=§cTrader village check failed, village size %s; check value %s
+message.trader.villagechecksuccess=§cTrader village check success, village size %s; check value %s
 
 
 #============
