@@ -1,13 +1,14 @@
 {
   "homepage": "https://minecraft.curseforge.com/projects/tektopia-trader",
   "promos": {
-    "1.12.2-latest": "1.0.0",
-    "1.12.2-recommended": "1.0.0"
+    "1.12.2-latest": "1.1.0",
+    "1.12.2-recommended": "1.1.0"
   },
   "1.12.2":{
     "0.1.0": "Initial alpha release.",
     "0.1.1": "Initial beta release.",
     "0.1.2": "Minor code tweaks.",
-    "1.0.0": "Initial release."
+    "1.0.0": "Initial release.",
+    "1.1.0": "Minor tweaks."
   }	
 }
