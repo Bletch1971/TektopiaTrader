@@ -3,8 +3,8 @@ package bletch.tektopiatrader.utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import bletch.tektopiainformation.core.ModConfig;
-import bletch.tektopiainformation.core.ModDetails;
+import bletch.tektopiatrader.core.ModConfig;
+import bletch.tektopiatrader.core.ModDetails;
 
 public class LoggerUtils {
 	
