@@ -36,7 +36,7 @@ public class CommandSpawn extends CommandVillageBase {
 		
 		if (world == null || world.isRaining() || Village.isNightTime(world)) {
 			notifyCommandListener(sender, this, "commands.trader.spawn.badconditions", new Object[0]);
-			LoggerUtils.debug(TextUtils.translate("commands.trader.spawn.badconditions", new Object[0]), true);
+			LoggerUtils.info(TextUtils.translate("commands.trader.spawn.badconditions", new Object[0]), true);
 			return;
 		}
 		
@@ -44,21 +44,21 @@ public class CommandSpawn extends CommandVillageBase {
 		Village village = villageManager != null && entityPlayer != null ? villageManager.getVillageAt(entityPlayer.getPosition()) : null;
 		if (village == null) {
 			notifyCommandListener(sender, this, "commands.trader.spawn.novillage", new Object[0]);
-			LoggerUtils.debug(TextUtils.translate("commands.trader.spawn.novillage", new Object[0]), true);
+			LoggerUtils.info(TextUtils.translate("commands.trader.spawn.novillage", new Object[0]), true);
 			return;
 		}
 
 		BlockPos spawnPosition = village.getEdgeNode();
 		if (spawnPosition == null) {
 			notifyCommandListener(sender, this, "commands.trader.spawn.noposition", new Object[0]);
-			LoggerUtils.debug(TextUtils.translate("commands.trader.spawn.noposition", new Object[0]), true);
+			LoggerUtils.info(TextUtils.translate("commands.trader.spawn.noposition", new Object[0]), true);
 			return;
 		}
 
         List<EntityTrader> entityList = world.getEntitiesWithinAABB(EntityTrader.class, village.getAABB().grow(Village.VILLAGE_SIZE));
         if (entityList.size() > 0) {
 			notifyCommandListener(sender, this, "commands.trader.spawn.exists", new Object[0]);
-			LoggerUtils.debug(TextUtils.translate("commands.trader.spawn.exists", new Object[0]), true);
+			LoggerUtils.info(TextUtils.translate("commands.trader.spawn.exists", new Object[0]), true);
 			return;
         }
         
@@ -67,12 +67,12 @@ public class CommandSpawn extends CommandVillageBase {
 		
 		if (!entitySpawned) {
 			notifyCommandListener(sender, this, "commands.trader.spawn.failed", new Object[0]);
-			LoggerUtils.debug(TextUtils.translate("commands.trader.spawn.failed", new Object[0]), true);
+			LoggerUtils.info(TextUtils.translate("commands.trader.spawn.failed", new Object[0]), true);
 			return;
 		}
 		
 		notifyCommandListener(sender, this, "commands.trader.spawn.success", new Object[] { TektopiaUtils.formatBlockPos(spawnPosition) });
-		LoggerUtils.debug(TextUtils.translate("commands.trader.spawn.success", new Object[] { TektopiaUtils.formatBlockPos(spawnPosition) }), true);
+		LoggerUtils.info(TextUtils.translate("commands.trader.spawn.success", new Object[] { TektopiaUtils.formatBlockPos(spawnPosition) }), true);
 	}
     
 }

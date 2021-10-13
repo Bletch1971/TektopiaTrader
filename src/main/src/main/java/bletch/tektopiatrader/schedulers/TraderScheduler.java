@@ -54,7 +54,7 @@ public class TraderScheduler implements IScheduler {
 			
 			if (villageLevel > 0 && villageCheck == 0) {
 				
-				LoggerUtils.debug(TextUtils.translate("message.trader.villagechecksuccess", new Object[] { villageLevel, villageCheck }), true);
+				LoggerUtils.info(TextUtils.translate("message.trader.villagechecksuccess", new Object[] { villageLevel, villageCheck }), true);
 				
 				// get a list of the Traders in the village
 				List<EntityTrader> entityList = world.getEntitiesWithinAABB(EntityTrader.class, v.getAABB().grow(Village.VILLAGE_SIZE));
@@ -65,18 +65,18 @@ public class TraderScheduler implements IScheduler {
 					// attempt spawn
 					if (TektopiaUtils.trySpawnEntity(world, spawnPosition, (World w) -> new EntityTrader(w))) {
 						v.sendChatMessage(new TextComponentTranslation("message.trader.spawned", new Object[] { TektopiaUtils.formatBlockPos(spawnPosition) }));
-						LoggerUtils.debug(TextUtils.translate("message.trader.spawned", new Object[] { TektopiaUtils.formatBlockPos(spawnPosition) }), true);
+						LoggerUtils.info(TextUtils.translate("message.trader.spawned", new Object[] { TektopiaUtils.formatBlockPos(spawnPosition) }), true);
 					} else {
 						v.sendChatMessage(new TextComponentTranslation("message.trader.noposition", new Object[0]));
-						LoggerUtils.debug(TextUtils.translate("message.trader.noposition", new Object[0]), true);
+						LoggerUtils.info(TextUtils.translate("message.trader.noposition", new Object[0]), true);
 					}
 					
 				} else {
-					LoggerUtils.debug(TextUtils.translate("message.trader.exists", new Object[0]), true);
+					LoggerUtils.info(TextUtils.translate("message.trader.exists", new Object[0]), true);
 				}
 				
 			} else {
-				LoggerUtils.debug(TextUtils.translate("message.trader.villagecheckfailed", new Object[] { villageLevel, villageCheck }), true);
+				LoggerUtils.info(TextUtils.translate("message.trader.villagecheckfailed", new Object[] { villageLevel, villageCheck }), true);
 			}
 		});
 	}
