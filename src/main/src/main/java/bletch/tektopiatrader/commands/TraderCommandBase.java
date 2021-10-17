@@ -10,11 +10,11 @@ import net.minecraft.command.PlayerNotFoundException;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.server.permission.PermissionAPI;
 
-public abstract class CommandVillageBase extends CommandBase {
+public abstract class TraderCommandBase extends CommandBase {
 	
 	protected final String name;
 
-	public CommandVillageBase(String name) {
+	public TraderCommandBase(String name) {
 		this.name = name;
 	}
 
