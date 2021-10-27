@@ -1,5 +1,6 @@
 package bletch.tektopiatrader.entities.ai;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
@@ -9,19 +10,24 @@ import net.tangotek.tektopia.entities.ai.EntityAIPatrolPoint;
 import net.tangotek.tektopia.structures.VillageStructure;
 import net.tangotek.tektopia.structures.VillageStructureType;
 
-public class EntityAITraderPatrolPoint extends EntityAIPatrolPoint {
+public class EntityAIWanderVillage extends EntityAIPatrolPoint {
 	protected final EntityVillagerTek entity;
 	protected VillageStructure structure;
 
-	public EntityAITraderPatrolPoint(EntityVillagerTek entity, Predicate<EntityVillagerTek> shouldPred, int distanceFromPoint, int waitTime) {
+	public EntityAIWanderVillage(EntityVillagerTek entity, Predicate<EntityVillagerTek> shouldPred, int distanceFromPoint, int waitTime) {
 		super(entity, shouldPred, distanceFromPoint, waitTime);
 		this.entity = entity;
 	}
 
+	@Override
+	public boolean shouldExecute() {
+		return this.villager.isAITick() && this.navigator.hasVillage() && this.shouldPred.test(this.villager) ? super.func_75250_a() : false;
+	}
+
 	protected BlockPos getPatrolPoint() {
-		List<VillageStructure> structures = null;
-		
-		structures = this.villager.getVillage().getStructures(VillageStructureType.MERCHANT_STALL);
+		List<VillageStructure> structures = new ArrayList<VillageStructure>();
+		structures.addAll(this.villager.getVillage().getStructures(VillageStructureType.STORAGE));
+		structures.addAll(this.villager.getVillage().getStructures(VillageStructureType.MERCHANT_STALL));
 		
 		if (structures.isEmpty())
 			return null;
@@ -29,10 +35,5 @@ public class EntityAITraderPatrolPoint extends EntityAIPatrolPoint {
 		Collections.shuffle(structures);
 		this.structure = (VillageStructure)structures.get(0);
 		return this.structure != null ? this.structure.getDoor() : null;
-	}
-
-	@Override
-	public boolean shouldExecute() {
-		return this.villager.isAITick() && this.navigator.hasVillage() && this.shouldPred.test(this.villager) ? super.func_75250_a() : false;
 	}
 }

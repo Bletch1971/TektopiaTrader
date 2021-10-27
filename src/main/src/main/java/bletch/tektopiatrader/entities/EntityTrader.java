@@ -12,7 +12,10 @@ import com.leviathanstudio.craftstudio.common.animation.AnimationHandler;
 import bletch.tektopiatrader.core.ModConfig;
 import bletch.tektopiatrader.core.ModDetails;
 import bletch.tektopiatrader.core.ModEntities;
-import bletch.tektopiatrader.entities.ai.EntityAITraderPatrolPoint;
+import bletch.tektopiatrader.entities.ai.EntityAILeaveVillage;
+import bletch.tektopiatrader.entities.ai.EntityAIWanderVillage;
+import bletch.tektopiatrader.entities.ai.EntityAIVisitVillage;
+import bletch.tektopiatrader.utils.LoggerUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.IMerchant;
 import net.minecraft.entity.INpc;
@@ -28,7 +31,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
@@ -43,7 +45,6 @@ import net.tangotek.tektopia.TekVillager;
 import net.tangotek.tektopia.Village;
 import net.tangotek.tektopia.VillagerRole;
 import net.tangotek.tektopia.entities.EntityVillagerTek;
-import net.tangotek.tektopia.entities.ai.EntityAIGenericMove;
 import net.tangotek.tektopia.entities.ai.EntityAIReadBook;
 import net.tangotek.tektopia.entities.ai.EntityAIWanderStructure;
 import net.tangotek.tektopia.tickjob.TickJob;
@@ -66,79 +67,48 @@ public class EntityTrader extends EntityVillagerTek implements IMerchant, INpc {
 
 	public EntityTrader(World worldIn) {
 		super(worldIn, (ProfessionType)null, VillagerRole.VENDOR.value | VillagerRole.VISITOR.value);
-		this.sleepOffset = getSleepOffset();
+		
+		this.sleepOffset = 0;
 	}
 
-	protected void setupServerJobs() {
-		super.setupServerJobs();
-
-		this.addJob(new TickJob(100, 0, false, () -> {
-			this.prepStuck();
-		}));
-		
-		this.addJob(new TickJob(400, 0, false, () -> {
-			this.checkStuck();
-		}));
-		
-		this.addJob(new TickJob(50, 0, true, () -> {
-			if (this.isSleepingTime()) {
-				this.setDead();
-			}
-		}));
-		
-		this.addJob(new TickJob(300, 100, true, () -> {
-			if (!this.hasVillage() || !this.getVillage().isValid()) {
-				this.debugOut("Killing self...no village");
-				this.setDead();
-			}
-		}));
+	protected void addTask(int priority, EntityAIBase task) {
+        if (task instanceof EntityAIWanderStructure && priority <= 100) {
+            return;
+        }
+        if (task instanceof EntityAIReadBook) {
+            return;
+        }
+        
+        super.addTask(priority, task);
 	}
 
-	private void prepStuck() {
-		this.firstCheck = this.getPos();
-	}
-
-	private void checkStuck() {
-		if (this.firstCheck.distanceSq(this.getPos()) < 20.0D) {
-			this.debugOut("Trader failed to find a way to the village.");
-			this.setDead();
-		}
+	public void addVillagerPosition() {
 	}
 	
-	// initEntityAI
-	protected void func_184651_r() {
-		super.func_184651_r();
-
-		this.addTask(50, new EntityAIGenericMove(this, (p) -> {
-			return p.hasVillage() && Village.isNightTime(this.world);
-		}, (v) -> {
-			return this.village.getEdgeNode();
-		}, EntityVillagerTek.MovementMode.WALK, (Runnable)null, () -> {
-			this.debugOut("Killing self...left the village");
-			this.setDead();
-		}));
+	public void attachToVillage(Village village) {
+		super.attachToVillage(village);
 		
-		this.addTask(50, new EntityAITraderPatrolPoint(this, (p) -> {
-			return this.hasVillage();
-		}, 3, 60));
-		
-		this.addTask(50, new EntityAIGenericMove(this, (p) -> {
-			return !Village.isNightTime(this.world) && p.hasVillage() && !this.isTrading();
-		}, (v) -> {
-			return this.village.getLastVillagerPos();
-		}, EntityVillagerTek.MovementMode.WALK, (Runnable)null, (Runnable)null));
+		LoggerUtils.info("Attaching to village", true);
 	}
 
-	protected void initEntityAIBase() {
+	protected void bedCheck() {
 	}
 
 	public boolean canNavigate() {
 		return this.isTrading() ? false : super.canNavigate();
 	}
-	
-	// getNewNavigator
-	protected PathNavigate func_175447_b(World worldIn) {
-		return super.func_175447_b(worldIn);
+
+	private void checkStuck() {
+		if (this.firstCheck.distanceSq(this.getPos()) < 20.0D) {
+			LoggerUtils.info("Killing self...failed to find a way to the village.", true);
+			this.setDead();
+		}
+	}
+
+	protected void detachVillage() {
+		super.detachVillage();
+		
+		LoggerUtils.info("Detaching from village", true);
 	}
 	
 	// getAIMoveSpeed
@@ -146,20 +116,8 @@ public class EntityTrader extends EntityVillagerTek implements IMerchant, INpc {
 		return super.func_70689_ay() * 0.9F;
 	}
 
-	protected void addTask(int priority, EntityAIBase task) {
-		if (!(task instanceof EntityAIWanderStructure) || priority > 100) {
-			if (!(task instanceof EntityAIReadBook)) {
-				super.addTask(priority, task);
-			}
-		}
-	}
-
-	public void addVillagerPosition() {
-	}
-
-	public void setCustomer(@Nullable EntityPlayer player) {
-		this.buyingPlayer = player;
-		this.getNavigator().clearPath();
+	protected boolean getCanUseDoors() {
+		return true;
 	}
 
 	@Nullable
@@ -167,23 +125,15 @@ public class EntityTrader extends EntityVillagerTek implements IMerchant, INpc {
 		return this.buyingPlayer;
 	}
 
-	public boolean isTrading() {
-		return this.buyingPlayer != null;
+	public ITextComponent getDisplayName() {
+		ITextComponent itextcomponent = new TextComponentTranslation("entity." + MODEL_NAME + ".name", new Object[0]);
+		itextcomponent.getStyle().setHoverEvent(this.getHoverEvent());
+		itextcomponent.getStyle().setInsertion(this.getCachedUniqueIdString());
+		return itextcomponent;
 	}
 
-	protected void bedCheck() {
-	}
-
-	public boolean isSleepingTime() {
-		return isSleepingTime(this.world);
-	}
-
-	public boolean isWorkTime() {
-		return isWorkTime(this.world) && !this.world.isRaining();
-	}
-
-	public boolean isLearningTime() {
-		return false;
+	public BlockPos getPos() {
+		return new BlockPos(this);
 	}
 
 	@Nullable
@@ -195,25 +145,38 @@ public class EntityTrader extends EntityVillagerTek implements IMerchant, INpc {
 		return this.vendorList;
 	}
 
-	protected boolean getCanUseDoors() {
-		return true;
+	public World getWorld() {
+		return this.world;
 	}
-	
-	// processInteract
-	public boolean func_184645_a(EntityPlayer player, EnumHand hand) {
-		if (this.isEntityAlive() && !this.isTrading() && !this.isChild() && !player.isSneaking() && !this.world.isRemote) {
-			if (this.vendorList == null) {
-				this.populateBuyingList();
-			}
 
-			if (this.vendorList != null && !this.vendorList.isEmpty()) {
-				this.setCustomer(player);
-				player.displayVillagerTradeGui(this);
-				this.getNavigator().clearPath();
-			}
-		}
+	protected void initEntityAIBase() {
+		setupAITasks();
+	}
 
-		return true;
+	public boolean isFleeFrom(Entity e) {
+		return false;
+	}
+
+	public com.google.common.base.Predicate<Entity> isHostile() {
+		return (e) -> {
+			return false;
+		};
+	}
+
+	public boolean isLearningTime() {
+		return false;
+	}
+
+	public boolean isSleepingTime() {
+		return false;
+	}
+
+	public boolean isTrading() {
+		return this.buyingPlayer != null;
+	}
+
+	public boolean isWorkTime() {
+		return isWorkTime(this.world, this.sleepOffset) && !this.world.isRaining();
 	}
 	
 	protected void populateBuyingList() {
@@ -269,12 +232,73 @@ public class EntityTrader extends EntityVillagerTek implements IMerchant, INpc {
 		}
 	}
 
+	private void prepStuck() {
+		this.firstCheck = this.getPos();
+	}
+	
+	// processInteract
+	public boolean func_184645_a(EntityPlayer player, EnumHand hand) {
+		if (this.isEntityAlive() && !this.isTrading() && !this.isChild() && !player.isSneaking() && !this.world.isRemote) {
+			if (this.vendorList == null) {
+				this.populateBuyingList();
+			}
+
+			if (this.vendorList != null && !this.vendorList.isEmpty()) {
+				this.setCustomer(player);
+				player.displayVillagerTradeGui(this);
+				this.getNavigator().clearPath();
+			}
+		}
+
+		return true;
+	}
+
+	public void setCustomer(@Nullable EntityPlayer player) {
+		this.buyingPlayer = player;
+		this.getNavigator().clearPath();
+	}
+
 	@SideOnly(Side.CLIENT)
 	public void setRecipes(@Nullable MerchantRecipeList recipeList) {
 	}
 
-	public World getWorld() {
-		return this.world;
+	protected void setupAITasks() {
+		this.addTask(30, new EntityAILeaveVillage(this, 
+				(e) -> !e.isWorkTime(), 
+				(e) -> e.getVillage().getEdgeNode(), 
+				EntityVillagerTek.MovementMode.WALK, (Runnable)null, 
+				() -> { 
+					LoggerUtils.info("Killing self...left the village", true);
+					this.setDead();
+				}
+		));
+		
+		this.addTask(40, new EntityAIWanderVillage(this, 
+				(e) -> e.isWorkTime(), 3, 60));
+		
+		this.addTask(50, new EntityAIVisitVillage(this, 
+				(e) -> e.isWorkTime() && !this.isTrading(), 
+				(e) -> e.getVillage().getLastVillagerPos(), 
+				EntityVillagerTek.MovementMode.WALK, (Runnable)null, (Runnable)null));
+	}
+	
+	protected void setupServerJobs() {
+		super.setupServerJobs();
+
+		this.addJob(new TickJob(100, 0, false, 
+				() -> this.prepStuck()));
+		
+		this.addJob(new TickJob(400, 0, false, 
+				() -> this.checkStuck()));
+		
+		this.addJob(new TickJob(300, 100, true, 
+				() -> {
+					if (!this.hasVillage() || !this.getVillage().isValid()) {
+						LoggerUtils.info("Killing self...no village", true);
+						this.setDead();
+					}
+				}
+		));
 	}
 
 	public void useRecipe(MerchantRecipe recipe) {
@@ -298,25 +322,14 @@ public class EntityTrader extends EntityVillagerTek implements IMerchant, INpc {
         }
 	}
 
-	public ITextComponent getDisplayName() {
-		ITextComponent itextcomponent = new TextComponentTranslation("entity." + MODEL_NAME + ".name", new Object[0]);
-		itextcomponent.getStyle().setHoverEvent(this.getHoverEvent());
-		itextcomponent.getStyle().setInsertion(this.getCachedUniqueIdString());
-		return itextcomponent;
-	}
+	// readEntityFromNBT
+	public void func_70037_a(NBTTagCompound compound) {
+		super.func_70037_a(compound);
 
-	public com.google.common.base.Predicate<Entity> isHostile() {
-		return (e) -> {
-			return false;
-		};
-	}
-
-	public boolean isFleeFrom(Entity e) {
-		return false;
-	}
-
-	public BlockPos getPos() {
-		return new BlockPos(this);
+		if (compound.hasKey("Offers", 10)) {
+			NBTTagCompound nbttagcompound = compound.getCompoundTag("Offers");
+			this.vendorList = new MerchantRecipeList(nbttagcompound);
+		}
 	}
 
 	// writeEntityToNBT
@@ -328,33 +341,15 @@ public class EntityTrader extends EntityVillagerTek implements IMerchant, INpc {
 		}
 	}
 
-	// readEntityFromNBT
-	public void func_70037_a(NBTTagCompound compound) {
-		super.func_70037_a(compound);
-
-		if (compound.hasKey("Offers", 10)) {
-			NBTTagCompound nbttagcompound = compound.getCompoundTag("Offers");
-			this.vendorList = new MerchantRecipeList(nbttagcompound);
-		}
-	}
-
 	static {
 		ANIMATION_KEY = EntityDataManager.createKey(EntityTrader.class, DataSerializers.STRING);
 		
 		animationHandler = TekVillager.getNewAnimationHandler(EntityTrader.class);
 		setupCraftStudioAnimations(animationHandler, ANIMATION_MODEL_NAME);
 	}
-	
-	public static int getSleepOffset() {
-		return 0;
-	}
 
-	public static boolean isSleepingTime(World world) {
-		return Village.isTimeOfDay(world, (long)(SLEEP_START_TIME + getSleepOffset()), (long)(SLEEP_END_TIME + getSleepOffset()));
-	}
-
-	public static boolean isWorkTime(World world) {
-		return Village.isTimeOfDay(world, (long)WORK_START_TIME, (long)WORK_END_TIME, (long)getSleepOffset());
+	public static boolean isWorkTime(World world, int sleepOffset) {
+		return Village.isTimeOfDay(world, (long)WORK_START_TIME, (long)WORK_END_TIME, (long)sleepOffset);
 	}
 	
 	protected static void setupCraftStudioAnimations(AnimationHandler<EntityTrader> animationHandler, String modelName) {

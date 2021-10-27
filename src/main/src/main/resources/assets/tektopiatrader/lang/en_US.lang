@@ -60,7 +60,7 @@ config.trader.checksvillagesize.tooltip=If enabled, when trying to spawn a trade
 #============
 commands.trader.usage=/trader
 
-commands.trader.spawn.usage=/trader spawn
+commands.trader.spawn.usage=/trader spawn [me]
 commands.trader.spawn.success=§aTrader has appeared at %s
 commands.trader.spawn.failed=§cTrader spawn failed
 commands.trader.spawn.badconditions=§cTrader spawn failed...spawn conditions not valid
@@ -78,9 +78,8 @@ commands.trader.kill.success=§aTrader has been killed
 #=================
 
 message.trader.exists=§eTrader already located in village %s
-message.trader.noposition=§cCould not find a spawn location for the Trader
 message.trader.noposition.village=§cCould not find a spawn location for the Trader in village %s
-message.trader.spawned=§aTrader has appeared at %s
+message.trader.spawned=§aTrader has been spotted approaching the village
 message.trader.spawned.village=§aTrader has appeared in village %s at %s
 message.trader.villagecheckfailed=§cTrader village check failed, village  %s; size %s; check value %s
 message.trader.villagechecksuccess=§cTrader village check success, village  %s; size %s; check value %s

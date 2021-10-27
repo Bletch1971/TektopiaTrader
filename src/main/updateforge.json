@@ -10,6 +10,6 @@
     "0.1.2": "Minor code tweaks.",
     "1.0.0": "Initial release.",
     "1.1.0": "Minor tweaks.",
-    "1.2.0": "Added entity icons for use in Journey map."
+    "1.2.0": "Changes AI Tasks to have better description.\nAdded [me] flag to spawn command.\nAdded entity icons for use in Journey map."
   }	
 }

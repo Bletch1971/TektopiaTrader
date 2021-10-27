@@ -27,9 +27,18 @@ public class CommandSpawn extends TraderCommandBase {
 
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		if (args.length > 0) {
+		if (args.length > 1) {
 			throw new WrongUsageException(ModCommands.COMMAND_PREFIX + COMMAND_NAME + ".usage", new Object[0]);
 		} 
+		
+		Boolean spawnNearMe = false;
+		if (args.length > 0) {
+			if (!args[0].equalsIgnoreCase("me")) {
+				throw new WrongUsageException(ModCommands.COMMAND_PREFIX + COMMAND_NAME + ".usage", new Object[0]);
+			}
+			
+			spawnNearMe = true;
+		}
 		
 		EntityPlayer entityPlayer = super.getCommandSenderAsPlayer(sender);
 		World world = entityPlayer != null ? entityPlayer.getEntityWorld() : null;
@@ -42,13 +51,15 @@ public class CommandSpawn extends TraderCommandBase {
 		
 		VillageManager villageManager = world != null ? VillageManager.get(world) : null;
 		Village village = villageManager != null && entityPlayer != null ? villageManager.getVillageAt(entityPlayer.getPosition()) : null;
+		
 		if (village == null) {
 			notifyCommandListener(sender, this, "commands.trader.spawn.novillage", new Object[0]);
 			LoggerUtils.info(TextUtils.translate("commands.trader.spawn.novillage", new Object[0]), true);
 			return;
 		}
 
-		BlockPos spawnPosition = village.getEdgeNode();
+		BlockPos spawnPosition = spawnNearMe ? entityPlayer.getPosition().north(2) : TektopiaUtils.getVillageSpawnPoint(world, village);
+		
 		if (spawnPosition == null) {
 			notifyCommandListener(sender, this, "commands.trader.spawn.noposition", new Object[0]);
 			LoggerUtils.info(TextUtils.translate("commands.trader.spawn.noposition", new Object[0]), true);
@@ -56,6 +67,7 @@ public class CommandSpawn extends TraderCommandBase {
 		}
 
         List<EntityTrader> entityList = world.getEntitiesWithinAABB(EntityTrader.class, village.getAABB().grow(Village.VILLAGE_SIZE));
+        
         if (entityList.size() > 0) {
 			notifyCommandListener(sender, this, "commands.trader.spawn.exists", new Object[0]);
 			LoggerUtils.info(TextUtils.translate("commands.trader.spawn.exists", new Object[0]), true);
@@ -63,9 +75,7 @@ public class CommandSpawn extends TraderCommandBase {
         }
         
 		// attempt to spawn the trader
-		Boolean entitySpawned = TektopiaUtils.trySpawnEntity(world, spawnPosition, (World w) -> new EntityTrader(w));
-		
-		if (!entitySpawned) {
+		if (!TektopiaUtils.trySpawnEntity(world, spawnPosition, (World w) -> new EntityTrader(w))) {
 			notifyCommandListener(sender, this, "commands.trader.spawn.failed", new Object[0]);
 			LoggerUtils.info(TextUtils.translate("commands.trader.spawn.failed", new Object[0]), true);
 			return;
