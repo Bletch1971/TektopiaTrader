@@ -10,6 +10,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.tangotek.tektopia.Village;
 import net.tangotek.tektopia.VillageManager;
@@ -51,9 +52,11 @@ public class CommandTraderKill extends CommandTraderBase {
         		continue;
         	
         	entity.setDead();
+        	
+        	String name = (entity.isMale() ? TextFormatting.BLUE : TextFormatting.LIGHT_PURPLE) + entity.getName();
     		
-    		notifyCommandListener(sender, this, TraderCommands.COMMAND_PREFIX + COMMAND_NAME + ".success", new Object[0]);
-    		LoggerUtils.info(TextUtils.translate(TraderCommands.COMMAND_PREFIX + COMMAND_NAME + ".success", new Object[0]), true);
+    		notifyCommandListener(sender, this, TraderCommands.COMMAND_PREFIX + COMMAND_NAME + ".success", new Object[] { name });
+    		LoggerUtils.info(TextUtils.translate(TraderCommands.COMMAND_PREFIX + COMMAND_NAME + ".success", new Object[] { name }), true);
         }
 	}
     
