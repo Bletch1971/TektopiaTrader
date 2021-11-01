@@ -1,21 +1,20 @@
-package bletch.tektopiatrader.core;
+package bletch.tektopiatrader.commands;
 
-import bletch.tektopiatrader.commands.CommandKill;
-import bletch.tektopiatrader.commands.CommandSpawn;
+import bletch.tektopiatrader.core.ModDetails;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.server.command.CommandTreeBase;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
 import net.minecraftforge.server.permission.PermissionAPI;
 
-public class ModCommands extends CommandTreeBase {
+public class TraderCommands extends CommandTreeBase {
 
 	public static final String COMMAND_PREFIX = "commands.trader.";
 	public static final String COMMAND_PREFIX_WITH_MODID = ModDetails.MOD_ID + "." + COMMAND_PREFIX;
 	
-	public ModCommands() {
-		super.addSubcommand(new CommandKill());
-		super.addSubcommand(new CommandSpawn());
+	public TraderCommands() {
+		super.addSubcommand(new CommandTraderKill());
+		super.addSubcommand(new CommandTraderSpawn());
 	}
 
 	public void registerNodes() {

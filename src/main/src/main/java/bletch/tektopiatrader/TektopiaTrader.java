@@ -4,7 +4,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.leviathanstudio.craftstudio.client.registry.CraftStudioLoader;
 
-import bletch.tektopiatrader.core.ModCommands;
+import bletch.tektopiatrader.commands.TraderCommands;
 import bletch.tektopiatrader.core.ModCommonProxy;
 import bletch.tektopiatrader.core.ModDetails;
 import bletch.tektopiatrader.core.ModEntities;
@@ -60,15 +60,15 @@ public class TektopiaTrader {
     
 	@Mod.EventHandler
 	public void onServerStarting(final FMLServerStartingEvent e) {
-		
-		LoggerUtils.info("Starting registerServerCommand...");
-		
-		// register commands
-		ModCommands commands = new ModCommands();
+
+		LoggerUtils.info("Starting command registrations...");
+
+		LoggerUtils.info("Registering trader commands");
+		TraderCommands commands = new TraderCommands();
 		e.registerServerCommand(commands);
 		commands.registerNodes();
-		
-		LoggerUtils.info("Finished registerServerCommand...");
+
+		LoggerUtils.info("Finished command registrations");
 		
 		World world = e.getServer().getEntityWorld();
 		
@@ -78,7 +78,7 @@ public class TektopiaTrader {
 		scheduleManager = new ScheduleManager(world);
 		scheduleManager.addScheduler(new TraderScheduler());
 		
-		LoggerUtils.info("Finished ScheduleManager setup...");
+		LoggerUtils.info("Finished ScheduleManager setup");
 	}
 	
     @EventBusSubscriber
