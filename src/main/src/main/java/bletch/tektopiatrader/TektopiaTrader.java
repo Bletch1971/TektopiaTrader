@@ -46,6 +46,7 @@ public class TektopiaTrader {
 		instance = this;
 		
 		proxy.preInitialize(e);
+		proxy.resetDebug();
 	}
 	  
 	@Mod.EventHandler

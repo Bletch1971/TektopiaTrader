@@ -3,6 +3,7 @@ package bletch.tektopiatrader.core;
 import java.io.File;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import bletch.tektopiatrader.utils.LoggerUtils;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -34,6 +35,12 @@ public class ModCommonProxy {
 	}
 	   
 	public void registerCraftStudioModels() {
+	}
+	
+	public void resetDebug() {
+		if (ModConfig.debug.enableDebug) {
+			LoggerUtils.resetDebug();
+		}		
 	}
 	
 }
