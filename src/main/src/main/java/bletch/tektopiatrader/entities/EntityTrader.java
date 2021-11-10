@@ -109,9 +109,8 @@ public class EntityTrader extends EntityVillagerTek implements IMerchant, INpc {
         LoggerUtils.info("Detaching from village", true);
     }
 
-    // getAIMoveSpeed
-    public float func_70689_ay() {
-        return super.func_70689_ay() * 0.9F;
+    public float getAIMoveSpeed() {
+    	return super.getAIMoveSpeed() * 0.9F;
     }
 
     protected boolean getCanUseDoors() {
@@ -231,8 +230,7 @@ public class EntityTrader extends EntityVillagerTek implements IMerchant, INpc {
         this.firstCheck = this.getPos();
     }
 
-    // processInteract
-    public boolean func_184645_a(EntityPlayer player, EnumHand hand) {
+    public boolean processInteract(EntityPlayer player, EnumHand hand) {
         if (this.isEntityAlive() && !this.isTrading() && !this.isChild() && !player.isSneaking() && !this.world.isRemote) {
             if (this.vendorList == null) {
                 this.populateBuyingList();
@@ -317,9 +315,8 @@ public class EntityTrader extends EntityVillagerTek implements IMerchant, INpc {
         }
     }
 
-    // readEntityFromNBT
-    public void func_70037_a(NBTTagCompound compound) {
-        super.func_70037_a(compound);
+    public void readEntityFromNBT(NBTTagCompound compound) {
+        super.readEntityFromNBT(compound);
 
         if (compound.hasKey("Offers", 10)) {
             NBTTagCompound nbttagcompound = compound.getCompoundTag("Offers");
@@ -327,9 +324,8 @@ public class EntityTrader extends EntityVillagerTek implements IMerchant, INpc {
         }
     }
 
-    // writeEntityToNBT
-    public void func_70014_b(NBTTagCompound compound) {
-        super.func_70014_b(compound);
+    public void writeEntityToNBT(NBTTagCompound compound) {
+        super.writeEntityToNBT(compound);
 
         if (this.vendorList != null) {
             compound.setTag("Offers", this.vendorList.getRecipiesAsTags());
