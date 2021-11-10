@@ -1,21 +1,14 @@
 package bletch.tektopiatrader.entities;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-
-import com.leviathanstudio.craftstudio.client.animation.ClientAnimationHandler;
-import com.leviathanstudio.craftstudio.common.animation.AnimationHandler;
-
 import bletch.tektopiatrader.core.ModConfig;
 import bletch.tektopiatrader.core.ModDetails;
 import bletch.tektopiatrader.core.ModEntities;
 import bletch.tektopiatrader.entities.ai.EntityAILeaveVillage;
-import bletch.tektopiatrader.entities.ai.EntityAIWanderVillage;
 import bletch.tektopiatrader.entities.ai.EntityAIVisitVillage;
+import bletch.tektopiatrader.entities.ai.EntityAIWanderVillage;
 import bletch.tektopiatrader.utils.LoggerUtils;
+import com.leviathanstudio.craftstudio.client.animation.ClientAnimationHandler;
+import com.leviathanstudio.craftstudio.common.animation.AnimationHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.IMerchant;
 import net.minecraft.entity.INpc;
@@ -40,7 +33,6 @@ import net.minecraft.village.MerchantRecipeList;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.tangotek.tektopia.ProfessionType;
 import net.tangotek.tektopia.TekVillager;
 import net.tangotek.tektopia.Village;
 import net.tangotek.tektopia.VillagerRole;
@@ -49,384 +41,387 @@ import net.tangotek.tektopia.entities.ai.EntityAIReadBook;
 import net.tangotek.tektopia.entities.ai.EntityAIWanderStructure;
 import net.tangotek.tektopia.tickjob.TickJob;
 
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+
 public class EntityTrader extends EntityVillagerTek implements IMerchant, INpc {
-	
-	public static final String ENTITY_NAME = "trader";
-	public static final String MODEL_NAME = "trader";
-	public static final String RESOURCE_PATH = "trader";
-	public static final String ANIMATION_MODEL_NAME = MODEL_NAME + "_m";
 
-	protected static final DataParameter<String> ANIMATION_KEY;
-	protected static final AnimationHandler<EntityTrader> animationHandler;
+    public static final String ENTITY_NAME = "trader";
+    public static final String MODEL_NAME = "trader";
+    public static final String RESOURCE_PATH = "trader";
+    public static final String ANIMATION_MODEL_NAME = MODEL_NAME + "_m";
 
-	private BlockPos firstCheck;
-	@Nullable
-	private EntityPlayer buyingPlayer;
-	@Nullable
-	private MerchantRecipeList vendorList;
+    protected static final DataParameter<String> ANIMATION_KEY;
+    protected static final AnimationHandler<EntityTrader> animationHandler;
 
-	public EntityTrader(World worldIn) {
-		super(worldIn, (ProfessionType)null, VillagerRole.VENDOR.value | VillagerRole.VISITOR.value);
-		
-		this.sleepOffset = 0;
-	}
+    private BlockPos firstCheck;
+    @Nullable
+    private EntityPlayer buyingPlayer;
+    @Nullable
+    private MerchantRecipeList vendorList;
 
-	protected void addTask(int priority, EntityAIBase task) {
+    public EntityTrader(World worldIn) {
+        super(worldIn, null, VillagerRole.VENDOR.value | VillagerRole.VISITOR.value);
+
+        this.sleepOffset = 0;
+    }
+
+    protected void addTask(int priority, EntityAIBase task) {
         if (task instanceof EntityAIWanderStructure && priority <= 100) {
             return;
         }
         if (task instanceof EntityAIReadBook) {
             return;
         }
-        
+
         super.addTask(priority, task);
-	}
+    }
 
-	public void addVillagerPosition() {
-	}
-	
-	public void attachToVillage(Village village) {
-		super.attachToVillage(village);
-		
-		LoggerUtils.info("Attaching to village", true);
-	}
+    public void addVillagerPosition() {
+    }
 
-	protected void bedCheck() {
-	}
+    public void attachToVillage(Village village) {
+        super.attachToVillage(village);
 
-	public boolean canNavigate() {
-		return this.isTrading() ? false : super.canNavigate();
-	}
+        LoggerUtils.info("Attaching to village", true);
+    }
 
-	private void checkStuck() {
-		if (this.firstCheck.distanceSq(this.getPos()) < 20.0D) {
-			LoggerUtils.info("Killing self...failed to find a way to the village.", true);
-			this.setDead();
-		}
-	}
+    protected void bedCheck() {
+    }
 
-	protected void detachVillage() {
-		super.detachVillage();
-		
-		LoggerUtils.info("Detaching from village", true);
-	}
-	
-	// getAIMoveSpeed
-	public float func_70689_ay() {
-		return super.func_70689_ay() * 0.9F;
-	}
+    public boolean canNavigate() {
+        return !this.isTrading() && super.canNavigate();
+    }
 
-	protected boolean getCanUseDoors() {
-		return true;
-	}
+    private void checkStuck() {
+        if (this.firstCheck.distanceSq(this.getPos()) < 20.0D) {
+            LoggerUtils.info("Killing self...failed to find a way to the village.", true);
+            this.setDead();
+        }
+    }
 
-	@Nullable
-	public EntityPlayer getCustomer() {
-		return this.buyingPlayer;
-	}
+    protected void detachVillage() {
+        super.detachVillage();
 
-	public ITextComponent getDisplayName() {
-		ITextComponent itextcomponent = new TextComponentTranslation("entity." + MODEL_NAME + ".name", new Object[0]);
-		itextcomponent.getStyle().setHoverEvent(this.getHoverEvent());
-		itextcomponent.getStyle().setInsertion(this.getCachedUniqueIdString());
-		return itextcomponent;
-	}
+        LoggerUtils.info("Detaching from village", true);
+    }
 
-	public BlockPos getPos() {
-		return new BlockPos(this);
-	}
+    // getAIMoveSpeed
+    public float func_70689_ay() {
+        return super.func_70689_ay() * 0.9F;
+    }
 
-	@Nullable
-	public MerchantRecipeList getRecipes(EntityPlayer player) {
-		if (this.vendorList == null) {
-			this.populateBuyingList();
-		}
+    protected boolean getCanUseDoors() {
+        return true;
+    }
 
-		return this.vendorList;
-	}
+    @Nullable
+    public EntityPlayer getCustomer() {
+        return this.buyingPlayer;
+    }
 
-	public World getWorld() {
-		return this.world;
-	}
+    public ITextComponent getDisplayName() {
+        ITextComponent itextcomponent = new TextComponentTranslation("entity." + MODEL_NAME + ".name");
+        itextcomponent.getStyle().setHoverEvent(this.getHoverEvent());
+        itextcomponent.getStyle().setInsertion(this.getCachedUniqueIdString());
+        return itextcomponent;
+    }
 
-	protected void initEntityAIBase() {
-		setupAITasks();
-	}
+    public BlockPos getPos() {
+        return new BlockPos(this);
+    }
 
-	public boolean isFleeFrom(Entity e) {
-		return false;
-	}
+    @Nullable
+    public MerchantRecipeList getRecipes(EntityPlayer player) {
+        if (this.vendorList == null) {
+            this.populateBuyingList();
+        }
 
-	public com.google.common.base.Predicate<Entity> isHostile() {
-		return (e) -> {
-			return false;
-		};
-	}
+        return this.vendorList;
+    }
 
-	public boolean isLearningTime() {
-		return false;
-	}
+    public World getWorld() {
+        return this.world;
+    }
 
-	public boolean isSleepingTime() {
-		return false;
-	}
+    protected void initEntityAIBase() {
+        setupAITasks();
+    }
 
-	public boolean isTrading() {
-		return this.buyingPlayer != null;
-	}
+    public boolean isFleeFrom(Entity e) {
+        return false;
+    }
 
-	public boolean isWorkTime() {
-		return isWorkTime(this.world, this.sleepOffset) && !this.world.isRaining();
-	}
-	
-	protected void populateBuyingList() {
-		if (this.vendorList == null && this.hasVillage()) {
-			this.vendorList = new MerchantRecipeList();
+    public com.google.common.base.Predicate<Entity> isHostile() {
+        return (e) -> false;
+    }
 
-			List<ItemStack> itemStackList = new ArrayList<ItemStack>();
+    public boolean isLearningTime() {
+        return false;
+    }
 
-			if (ModConfig.trader.trades != null && ModConfig.trader.trades.length > 0) {
-				for (String tradeItem : ModConfig.trader.trades) {
-					if (tradeItem == null || tradeItem.trim() == "") {
-						continue;
-					}
+    public boolean isSleepingTime() {
+        return false;
+    }
 
-					String[] itemParts = tradeItem.split("[*]");
-					String itemName = itemParts[0];
-					Integer quantity = 1;
+    public boolean isTrading() {
+        return this.buyingPlayer != null;
+    }
 
-					if (itemParts.length > 1) {
-						try {
-							quantity = Integer.parseInt(itemParts[1]);
-						}
-						catch (NumberFormatException ex) {
-							quantity = 1;
-						}
-					}
+    public boolean isWorkTime() {
+        return isWorkTime(this.world, this.sleepOffset) && !this.world.isRaining();
+    }
 
-					Item item = Item.getByNameOrId(itemName);
-					if (item != null) {
-						itemStackList.add(new ItemStack(item, quantity));
-					}
-				}
-			}
-			
-			if (itemStackList.size() == 0) {
-				itemStackList.add(new ItemStack(Items.IRON_INGOT, 64));
-				itemStackList.add(new ItemStack(Items.GOLD_INGOT, 32));
-				itemStackList.add(new ItemStack(Items.DIAMOND, 8));
-				itemStackList.add(new ItemStack(Blocks.REDSTONE_BLOCK, 8));
-				itemStackList.add(new ItemStack(Blocks.LAPIS_BLOCK, 8));
-			}
+    protected void populateBuyingList() {
+        if (this.vendorList == null && this.hasVillage()) {
+            this.vendorList = new MerchantRecipeList();
 
-			int tradesPerDay = Math.max(1, Math.min(99999, ModConfig.trader.tradesPerDay));
+            List<ItemStack> itemStackList = new ArrayList<>();
 
-			// create the merchant recipe list
-			for (ItemStack itemStack : itemStackList) {
-				if (itemStack == null) {
-					continue;
-				}
-				
-				this.vendorList.add(new MerchantRecipe(itemStack, ItemStack.EMPTY, new ItemStack(Items.EMERALD, 1), 0, tradesPerDay));
-			}
-		}
-	}
+            if (ModConfig.trader.trades != null && ModConfig.trader.trades.length > 0) {
+                for (String tradeItem : ModConfig.trader.trades) {
+                    if (tradeItem == null || tradeItem.trim().equals("")) {
+                        continue;
+                    }
 
-	private void prepStuck() {
-		this.firstCheck = this.getPos();
-	}
-	
-	// processInteract
-	public boolean func_184645_a(EntityPlayer player, EnumHand hand) {
-		if (this.isEntityAlive() && !this.isTrading() && !this.isChild() && !player.isSneaking() && !this.world.isRemote) {
-			if (this.vendorList == null) {
-				this.populateBuyingList();
-			}
+                    String[] itemParts = tradeItem.split("[*]");
+                    String itemName = itemParts[0];
+                    int quantity = 1;
 
-			if (this.vendorList != null && !this.vendorList.isEmpty()) {
-				this.setCustomer(player);
-				player.displayVillagerTradeGui(this);
-				this.getNavigator().clearPath();
-			}
-		}
+                    if (itemParts.length > 1) {
+                        try {
+                            quantity = Integer.parseInt(itemParts[1]);
+                        } catch (NumberFormatException ex) {
+                            quantity = 1;
+                        }
+                    }
 
-		return true;
-	}
+                    Item item = Item.getByNameOrId(itemName);
+                    if (item != null) {
+                        itemStackList.add(new ItemStack(item, quantity));
+                    }
+                }
+            }
 
-	public void setCustomer(@Nullable EntityPlayer player) {
-		this.buyingPlayer = player;
-		this.getNavigator().clearPath();
-	}
+            if (itemStackList.size() == 0) {
+                itemStackList.add(new ItemStack(Items.IRON_INGOT, 64));
+                itemStackList.add(new ItemStack(Items.GOLD_INGOT, 32));
+                itemStackList.add(new ItemStack(Items.DIAMOND, 8));
+                itemStackList.add(new ItemStack(Blocks.REDSTONE_BLOCK, 8));
+                itemStackList.add(new ItemStack(Blocks.LAPIS_BLOCK, 8));
+            }
 
-	@SideOnly(Side.CLIENT)
-	public void setRecipes(@Nullable MerchantRecipeList recipeList) {
-	}
+            int tradesPerDay = Math.max(1, Math.min(99999, ModConfig.trader.tradesPerDay));
 
-	protected void setupAITasks() {
-		this.addTask(30, new EntityAILeaveVillage(this, 
-				(e) -> !e.isWorkTime(), 
-				(e) -> e.getVillage().getEdgeNode(), 
-				EntityVillagerTek.MovementMode.WALK, (Runnable)null, 
-				() -> { 
-					LoggerUtils.info("Killing self...left the village", true);
-					this.setDead();
-				}
-		));
-		
-		this.addTask(40, new EntityAIWanderVillage(this, 
-				(e) -> e.isWorkTime(), 3, 60));
-		
-		this.addTask(50, new EntityAIVisitVillage(this, 
-				(e) -> e.isWorkTime() && !this.isTrading(), 
-				(e) -> e.getVillage().getLastVillagerPos(), 
-				EntityVillagerTek.MovementMode.WALK, (Runnable)null, (Runnable)null));
-	}
-	
-	protected void setupServerJobs() {
-		super.setupServerJobs();
+            // create the merchant recipe list
+            for (ItemStack itemStack : itemStackList) {
+                if (itemStack == null) {
+                    continue;
+                }
 
-		this.addJob(new TickJob(100, 0, false, 
-				() -> this.prepStuck()));
-		
-		this.addJob(new TickJob(400, 0, false, 
-				() -> this.checkStuck()));
-		
-		this.addJob(new TickJob(300, 100, true, 
-				() -> {
-					if (!this.hasVillage() || !this.getVillage().isValid()) {
-						LoggerUtils.info("Killing self...no village", true);
-						this.setDead();
-					}
-				}
-		));
-	}
+                this.vendorList.add(new MerchantRecipe(itemStack, ItemStack.EMPTY, new ItemStack(Items.EMERALD, 1), 0, tradesPerDay));
+            }
+        }
+    }
 
-	public void useRecipe(MerchantRecipe recipe) {
-		recipe.incrementToolUses();
-		this.livingSoundTime = -this.getTalkInterval();
-		this.playSound(SoundEvents.ENTITY_VILLAGER_YES, this.getSoundVolume(), this.getSoundPitch());
-		int i = 3 + this.rand.nextInt(4);
-		if (recipe.getToolUses() == 1 || this.rand.nextInt(5) == 0) {
-			i += 5;
-		}
+    private void prepStuck() {
+        this.firstCheck = this.getPos();
+    }
 
-		if (recipe.getRewardsExp()) {
-			this.world.spawnEntity(new EntityXPOrb(this.world, this.posX, this.posY + 0.5D, this.posZ, i));
-		}
-	}
+    // processInteract
+    public boolean func_184645_a(EntityPlayer player, EnumHand hand) {
+        if (this.isEntityAlive() && !this.isTrading() && !this.isChild() && !player.isSneaking() && !this.world.isRemote) {
+            if (this.vendorList == null) {
+                this.populateBuyingList();
+            }
 
-	public void verifySellingItem(ItemStack stack) {
-		if (!this.world.isRemote && this.livingSoundTime > -this.getTalkInterval() + 20) {
+            if (this.vendorList != null && !this.vendorList.isEmpty()) {
+                this.setCustomer(player);
+                player.displayVillagerTradeGui(this);
+                this.getNavigator().clearPath();
+            }
+        }
+
+        return true;
+    }
+
+    public void setCustomer(@Nullable EntityPlayer player) {
+        this.buyingPlayer = player;
+        this.getNavigator().clearPath();
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void setRecipes(@Nullable MerchantRecipeList recipeList) {
+    }
+
+    protected void setupAITasks() {
+        this.addTask(30, new EntityAILeaveVillage(this,
+                (e) -> !e.isWorkTime(),
+                (e) -> e.getVillage().getEdgeNode(),
+                EntityVillagerTek.MovementMode.WALK, null,
+                () -> {
+                    LoggerUtils.info("Killing self...left the village", true);
+                    this.setDead();
+                }
+        ));
+
+        this.addTask(40, new EntityAIWanderVillage(this,
+                (e) -> e.isWorkTime(), 3, 60));
+
+        this.addTask(50, new EntityAIVisitVillage(this,
+                (e) -> e.isWorkTime() && !this.isTrading(),
+                (e) -> e.getVillage().getLastVillagerPos(),
+                EntityVillagerTek.MovementMode.WALK, null, null));
+    }
+
+    protected void setupServerJobs() {
+        super.setupServerJobs();
+
+        this.addJob(new TickJob(100, 0, false,
+                () -> this.prepStuck()));
+
+        this.addJob(new TickJob(400, 0, false,
+                () -> this.checkStuck()));
+
+        this.addJob(new TickJob(300, 100, true,
+                () -> {
+                    if (!this.hasVillage() || !this.getVillage().isValid()) {
+                        LoggerUtils.info("Killing self...no village", true);
+                        this.setDead();
+                    }
+                }
+        ));
+    }
+
+    public void useRecipe(MerchantRecipe recipe) {
+        recipe.incrementToolUses();
+        this.livingSoundTime = -this.getTalkInterval();
+        this.playSound(SoundEvents.ENTITY_VILLAGER_YES, this.getSoundVolume(), this.getSoundPitch());
+        int i = 3 + this.rand.nextInt(4);
+        if (recipe.getToolUses() == 1 || this.rand.nextInt(5) == 0) {
+            i += 5;
+        }
+
+        if (recipe.getRewardsExp()) {
+            this.world.spawnEntity(new EntityXPOrb(this.world, this.posX, this.posY + 0.5D, this.posZ, i));
+        }
+    }
+
+    public void verifySellingItem(ItemStack stack) {
+        if (!this.world.isRemote && this.livingSoundTime > -this.getTalkInterval() + 20) {
             this.livingSoundTime = -this.getTalkInterval();
             this.playSound(stack.isEmpty() ? SoundEvents.ENTITY_VILLAGER_NO : SoundEvents.ENTITY_VILLAGER_YES, this.getSoundVolume(), this.getSoundPitch());
         }
-	}
+    }
 
-	// readEntityFromNBT
-	public void func_70037_a(NBTTagCompound compound) {
-		super.func_70037_a(compound);
+    // readEntityFromNBT
+    public void func_70037_a(NBTTagCompound compound) {
+        super.func_70037_a(compound);
 
-		if (compound.hasKey("Offers", 10)) {
-			NBTTagCompound nbttagcompound = compound.getCompoundTag("Offers");
-			this.vendorList = new MerchantRecipeList(nbttagcompound);
-		}
-	}
+        if (compound.hasKey("Offers", 10)) {
+            NBTTagCompound nbttagcompound = compound.getCompoundTag("Offers");
+            this.vendorList = new MerchantRecipeList(nbttagcompound);
+        }
+    }
 
-	// writeEntityToNBT
-	public void func_70014_b(NBTTagCompound compound) {
-		super.func_70014_b(compound);
-		
-		if (this.vendorList != null) {
-			compound.setTag("Offers", this.vendorList.getRecipiesAsTags());
-		}
-	}
+    // writeEntityToNBT
+    public void func_70014_b(NBTTagCompound compound) {
+        super.func_70014_b(compound);
 
-	static {
-		ANIMATION_KEY = EntityDataManager.createKey(EntityTrader.class, DataSerializers.STRING);
-		
-		animationHandler = TekVillager.getNewAnimationHandler(EntityTrader.class);
-		setupCraftStudioAnimations(animationHandler, ANIMATION_MODEL_NAME);
-	}
+        if (this.vendorList != null) {
+            compound.setTag("Offers", this.vendorList.getRecipiesAsTags());
+        }
+    }
 
-	public static boolean isWorkTime(World world, int sleepOffset) {
-		return Village.isTimeOfDay(world, (long)WORK_START_TIME, (long)WORK_END_TIME, (long)sleepOffset);
-	}
-	
-	protected static void setupCraftStudioAnimations(AnimationHandler<EntityTrader> animationHandler, String modelName) {
-		animationHandler.addAnim(ModDetails.MOD_ID, ModEntities.ANIMATION_VILLAGER_EAT, modelName, true);
-		animationHandler.addAnim(ModDetails.MOD_ID, ModEntities.ANIMATION_VILLAGER_READ, modelName, true);
-		animationHandler.addAnim(ModDetails.MOD_ID, ModEntities.ANIMATION_VILLAGER_RUN, modelName, true);
-		animationHandler.addAnim(ModDetails.MOD_ID, ModEntities.ANIMATION_VILLAGER_SIT, modelName, true);
-		animationHandler.addAnim(ModDetails.MOD_ID, ModEntities.ANIMATION_VILLAGER_SITCHEER, modelName, true);
-		animationHandler.addAnim(ModDetails.MOD_ID, ModEntities.ANIMATION_VILLAGER_SLEEP, modelName, true);	
-		animationHandler.addAnim(ModDetails.MOD_ID, ModEntities.ANIMATION_VILLAGER_WALK, modelName, true);
-		animationHandler.addAnim(ModDetails.MOD_ID, ModEntities.ANIMATION_VILLAGER_WALKSAD, modelName, true);
-	}
+    static {
+        ANIMATION_KEY = EntityDataManager.createKey(EntityTrader.class, DataSerializers.STRING);
 
-	@Override
-	public AnimationHandler<EntityTrader> getAnimationHandler() {
-		return animationHandler;
-	}
-	
-	@Override
-	public void playClientAnimation(String animationName) {
-		if (!this.getAnimationHandler().isAnimationActive(ModDetails.MOD_ID, animationName, this)) {
-			this.getAnimationHandler().startAnimation(ModDetails.MOD_ID, animationName, this);
-		}
-	}
+        animationHandler = TekVillager.getNewAnimationHandler(EntityTrader.class);
+        setupCraftStudioAnimations(animationHandler, ANIMATION_MODEL_NAME);
+    }
 
-	@Override
-	public void stopClientAnimation(String animationName) {
-		super.stopClientAnimation(animationName);
-		if (this.getAnimationHandler().isAnimationActive(ModDetails.MOD_ID, animationName, this)) {
-			this.getAnimationHandler().stopAnimation(ModDetails.MOD_ID, animationName, this);
-		}
-	}
+    public static boolean isWorkTime(World world, int sleepOffset) {
+        return Village.isTimeOfDay(world, WORK_START_TIME, WORK_END_TIME, sleepOffset);
+    }
 
-	@Override
-	protected void applyEntityAttributes() {
-		super.applyEntityAttributes();
-		this.dataManager.set(ANIMATION_KEY, "");
-	}
+    protected static void setupCraftStudioAnimations(AnimationHandler<EntityTrader> animationHandler, String modelName) {
+        animationHandler.addAnim(ModDetails.MOD_ID, ModEntities.ANIMATION_VILLAGER_EAT, modelName, true);
+        animationHandler.addAnim(ModDetails.MOD_ID, ModEntities.ANIMATION_VILLAGER_READ, modelName, true);
+        animationHandler.addAnim(ModDetails.MOD_ID, ModEntities.ANIMATION_VILLAGER_RUN, modelName, true);
+        animationHandler.addAnim(ModDetails.MOD_ID, ModEntities.ANIMATION_VILLAGER_SIT, modelName, true);
+        animationHandler.addAnim(ModDetails.MOD_ID, ModEntities.ANIMATION_VILLAGER_SITCHEER, modelName, true);
+        animationHandler.addAnim(ModDetails.MOD_ID, ModEntities.ANIMATION_VILLAGER_SLEEP, modelName, true);
+        animationHandler.addAnim(ModDetails.MOD_ID, ModEntities.ANIMATION_VILLAGER_WALK, modelName, true);
+        animationHandler.addAnim(ModDetails.MOD_ID, ModEntities.ANIMATION_VILLAGER_WALKSAD, modelName, true);
+    }
 
-	@Override
-	protected void entityInit() {
-		this.dataManager.register(ANIMATION_KEY, "");
-		super.entityInit();
-	}
+    @Override
+    public AnimationHandler<EntityTrader> getAnimationHandler() {
+        return animationHandler;
+    }
 
-	protected void updateClientAnimation(String animationName) {
-		ClientAnimationHandler<EntityTrader> clientAnimationHandler = (ClientAnimationHandler<EntityTrader>)this.getAnimationHandler();
-		
-		Set<String> animChannels = clientAnimationHandler.getAnimChannels().keySet();
-		animChannels.forEach(a -> clientAnimationHandler.stopAnimation(a, this));
-		
-		if (!animationName.isEmpty()) {
-			clientAnimationHandler.startAnimation(ModDetails.MOD_ID, animationName, this);
-		}
-	}
+    @Override
+    public void playClientAnimation(String animationName) {
+        if (!this.getAnimationHandler().isAnimationActive(ModDetails.MOD_ID, animationName, this)) {
+            this.getAnimationHandler().startAnimation(ModDetails.MOD_ID, animationName, this);
+        }
+    }
 
-	@Override
-	public void notifyDataManagerChange(DataParameter<?> key) {
-		super.notifyDataManagerChange(key);
-		
-		if (this.isWorldRemote() && ANIMATION_KEY.equals(key)) {
-			this.updateClientAnimation(this.dataManager.get(ANIMATION_KEY));
-		}
-	}   
-	
-	@Override
-	public void stopServerAnimation(String animationName) {
-		this.dataManager.set(ANIMATION_KEY, "");
-	}
+    @Override
+    public void stopClientAnimation(String animationName) {
+        super.stopClientAnimation(animationName);
+        if (this.getAnimationHandler().isAnimationActive(ModDetails.MOD_ID, animationName, this)) {
+            this.getAnimationHandler().stopAnimation(ModDetails.MOD_ID, animationName, this);
+        }
+    }
 
-	@Override
-	public void playServerAnimation(String animationName) {
-		this.dataManager.set(ANIMATION_KEY, animationName);
-	}
+    @Override
+    protected void applyEntityAttributes() {
+        super.applyEntityAttributes();
+        this.dataManager.set(ANIMATION_KEY, "");
+    }
 
-	@Override
-	public boolean isPlayingAnimation(String animationName) {
-		return animationName == this.dataManager.get(ANIMATION_KEY);
-	}
+    @Override
+    protected void entityInit() {
+        this.dataManager.register(ANIMATION_KEY, "");
+        super.entityInit();
+    }
+
+    protected void updateClientAnimation(String animationName) {
+        ClientAnimationHandler<EntityTrader> clientAnimationHandler = (ClientAnimationHandler<EntityTrader>) this.getAnimationHandler();
+
+        Set<String> animChannels = clientAnimationHandler.getAnimChannels().keySet();
+        animChannels.forEach(a -> clientAnimationHandler.stopAnimation(a, this));
+
+        if (!animationName.isEmpty()) {
+            clientAnimationHandler.startAnimation(ModDetails.MOD_ID, animationName, this);
+        }
+    }
+
+    @Override
+    public void notifyDataManagerChange(DataParameter<?> key) {
+        super.notifyDataManagerChange(key);
+
+        if (this.isWorldRemote() && ANIMATION_KEY.equals(key)) {
+            this.updateClientAnimation(this.dataManager.get(ANIMATION_KEY));
+        }
+    }
+
+    @Override
+    public void stopServerAnimation(String animationName) {
+        this.dataManager.set(ANIMATION_KEY, "");
+    }
+
+    @Override
+    public void playServerAnimation(String animationName) {
+        this.dataManager.set(ANIMATION_KEY, animationName);
+    }
+
+    @Override
+    public boolean isPlayingAnimation(String animationName) {
+        return Objects.equals(animationName, this.dataManager.get(ANIMATION_KEY));
+    }
 }
