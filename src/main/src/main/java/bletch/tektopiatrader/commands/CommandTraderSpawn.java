@@ -1,9 +1,11 @@
 package bletch.tektopiatrader.commands;
 
+import bletch.common.commands.CommonCommandBase;
+import bletch.common.utils.TektopiaUtils;
+import bletch.common.utils.TextUtils;
+import bletch.tektopiatrader.core.ModDetails;
 import bletch.tektopiatrader.entities.EntityTrader;
 import bletch.tektopiatrader.utils.LoggerUtils;
-import bletch.tektopiatrader.utils.TektopiaUtils;
-import bletch.tektopiatrader.utils.TextUtils;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
@@ -16,24 +18,24 @@ import net.tangotek.tektopia.VillageManager;
 
 import java.util.List;
 
-public class CommandTraderSpawn extends CommandTraderBase {
+public class CommandTraderSpawn extends CommonCommandBase {
 
     private static final String COMMAND_NAME = "spawn";
 
     public CommandTraderSpawn() {
-        super(COMMAND_NAME);
+        super(ModDetails.MOD_ID, TraderCommands.COMMAND_PREFIX, COMMAND_NAME);
     }
 
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
         if (args.length > 1) {
-            throw new WrongUsageException(TraderCommands.COMMAND_PREFIX + COMMAND_NAME + ".usage");
+            throw new WrongUsageException(this.prefix + COMMAND_NAME + ".usage");
         }
 
         boolean spawnNearMe = false;
         if (args.length > 0) {
             if (!args[0].equalsIgnoreCase("me")) {
-                throw new WrongUsageException(TraderCommands.COMMAND_PREFIX + COMMAND_NAME + ".usage");
+                throw new WrongUsageException(this.prefix + COMMAND_NAME + ".usage");
             }
 
             spawnNearMe = true;
@@ -43,8 +45,8 @@ public class CommandTraderSpawn extends CommandTraderBase {
         World world = entityPlayer != null ? entityPlayer.getEntityWorld() : null;
 
         if (world == null || world.isRaining() || Village.isNightTime(world)) {
-            notifyCommandListener(sender, this, TraderCommands.COMMAND_PREFIX + COMMAND_NAME + ".badconditions");
-            LoggerUtils.info(TextUtils.translate(TraderCommands.COMMAND_PREFIX + COMMAND_NAME + ".badconditions"), true);
+            notifyCommandListener(sender, this, this.prefix + COMMAND_NAME + ".badconditions");
+            LoggerUtils.info(TextUtils.translate(this.prefix + COMMAND_NAME + ".badconditions"), true);
             return;
         }
 
@@ -52,36 +54,36 @@ public class CommandTraderSpawn extends CommandTraderBase {
         Village village = villageManager != null && entityPlayer != null ? villageManager.getVillageAt(entityPlayer.getPosition()) : null;
 
         if (village == null) {
-            notifyCommandListener(sender, this, TraderCommands.COMMAND_PREFIX + COMMAND_NAME + ".novillage");
-            LoggerUtils.info(TextUtils.translate(TraderCommands.COMMAND_PREFIX + COMMAND_NAME + ".novillage"), true);
+            notifyCommandListener(sender, this, this.prefix + COMMAND_NAME + ".novillage");
+            LoggerUtils.info(TextUtils.translate(this.prefix + COMMAND_NAME + ".novillage"), true);
             return;
         }
 
         BlockPos spawnPosition = spawnNearMe ? entityPlayer.getPosition() : TektopiaUtils.getVillageSpawnPoint(world, village);
 
         if (spawnPosition == null) {
-            notifyCommandListener(sender, this, TraderCommands.COMMAND_PREFIX + COMMAND_NAME + ".noposition");
-            LoggerUtils.info(TextUtils.translate(TraderCommands.COMMAND_PREFIX + COMMAND_NAME + ".noposition"), true);
+            notifyCommandListener(sender, this, this.prefix + COMMAND_NAME + ".noposition");
+            LoggerUtils.info(TextUtils.translate(this.prefix + COMMAND_NAME + ".noposition"), true);
             return;
         }
 
         List<EntityTrader> entityList = world.getEntitiesWithinAABB(EntityTrader.class, village.getAABB().grow(Village.VILLAGE_SIZE));
 
         if (entityList.size() > 0) {
-            notifyCommandListener(sender, this, TraderCommands.COMMAND_PREFIX + COMMAND_NAME + ".exists");
-            LoggerUtils.info(TextUtils.translate(TraderCommands.COMMAND_PREFIX + COMMAND_NAME + ".exists"), true);
+            notifyCommandListener(sender, this, this.prefix + COMMAND_NAME + ".exists");
+            LoggerUtils.info(TextUtils.translate(this.prefix + COMMAND_NAME + ".exists"), true);
             return;
         }
 
         // attempt to spawn the trader
         if (!TektopiaUtils.trySpawnEntity(world, spawnPosition, (World w) -> new EntityTrader(w))) {
-            notifyCommandListener(sender, this, TraderCommands.COMMAND_PREFIX + COMMAND_NAME + ".failed");
-            LoggerUtils.info(TextUtils.translate(TraderCommands.COMMAND_PREFIX + COMMAND_NAME + ".failed"), true);
+            notifyCommandListener(sender, this, this.prefix + COMMAND_NAME + ".failed");
+            LoggerUtils.info(TextUtils.translate(this.prefix + COMMAND_NAME + ".failed"), true);
             return;
         }
 
-        notifyCommandListener(sender, this, TraderCommands.COMMAND_PREFIX + COMMAND_NAME + ".success", TektopiaUtils.formatBlockPos(spawnPosition));
-        LoggerUtils.info(TextUtils.translate(TraderCommands.COMMAND_PREFIX + COMMAND_NAME + ".success", TektopiaUtils.formatBlockPos(spawnPosition)), true);
+        notifyCommandListener(sender, this, this.prefix + COMMAND_NAME + ".success", TektopiaUtils.formatBlockPos(spawnPosition));
+        LoggerUtils.info(TextUtils.translate(this.prefix + COMMAND_NAME + ".success", TektopiaUtils.formatBlockPos(spawnPosition)), true);
     }
 
 }

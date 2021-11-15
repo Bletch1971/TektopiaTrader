@@ -1,10 +1,10 @@
 package bletch.tektopiatrader;
 
+import bletch.common.schedulers.ScheduleManager;
 import bletch.tektopiatrader.commands.TraderCommands;
 import bletch.tektopiatrader.core.ModCommonProxy;
 import bletch.tektopiatrader.core.ModDetails;
 import bletch.tektopiatrader.core.ModEntities;
-import bletch.tektopiatrader.schedulers.ScheduleManager;
 import bletch.tektopiatrader.schedulers.TraderScheduler;
 import bletch.tektopiatrader.utils.LoggerUtils;
 import com.leviathanstudio.craftstudio.client.registry.CraftStudioLoader;
@@ -44,8 +44,8 @@ public class TektopiaTrader {
     public void preInitialize(FMLPreInitializationEvent e) {
         instance = this;
 
-        proxy.preInitialize(e);
         proxy.resetDebug();
+        proxy.preInitialize(e);
     }
 
     @Mod.EventHandler

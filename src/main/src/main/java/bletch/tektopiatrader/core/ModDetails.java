@@ -19,10 +19,6 @@ public class ModDetails {
     public static final String MOD_SERVER_PROXY_CLASS = "bletch." + MOD_ID + ".core.ModCommonProxy";
     public static final String MOD_CLIENT_PROXY_CLASS = "bletch." + MOD_ID + ".core.ModClientProxy";
 
-    public static final String MOD_ID_MINECRAFT = "minecraft";
-    public static final String MOD_ID_FORGE = "forge";
-    public static final String MOD_ID_TEKTOPIA = "tektopia";
-
     public static final String PATH_DEBUG = "/debug";
     public static final String FILE_DEBUGLOG = PATH_DEBUG + "/" + MOD_ID + ".txt";
 }
