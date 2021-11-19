@@ -27,7 +27,7 @@ public class TraderScheduler implements IScheduler {
         if (this.resetNight)
             return;
 
-        LoggerUtils.info("TraderScheduler - resetNight called", true);
+        LoggerUtils.instance.info("TraderScheduler - resetNight called", true);
 
         // if it is night time, then clear the village checks
         this.checkedVillages = false;
@@ -40,7 +40,7 @@ public class TraderScheduler implements IScheduler {
         if (this.checkedVillages || world == null || world.isRaining() || !EntityTrader.isWorkTime(world, 0))
             return;
 
-        LoggerUtils.info("TraderScheduler - update called", true);
+        LoggerUtils.instance.info("TraderScheduler - update called", true);
 
         this.resetNight = false;
         this.checkedVillages = true;
@@ -61,7 +61,7 @@ public class TraderScheduler implements IScheduler {
 
             if (villageLevel > 0 && villageCheck == 0) {
 
-                LoggerUtils.info(TextUtils.translate("message.trader.villagechecksuccess", villageName, villageLevel, villageCheck), true);
+                LoggerUtils.instance.info(TextUtils.translate("message.trader.villagechecksuccess", villageName, villageLevel, villageCheck), true);
 
                 // get a list of the Traders in the village
                 List<EntityTrader> entityList = world.getEntitiesWithinAABB(EntityTrader.class, v.getAABB().grow(Village.VILLAGE_SIZE));
@@ -72,17 +72,17 @@ public class TraderScheduler implements IScheduler {
                     // attempt spawn
                     if (TektopiaUtils.trySpawnEntity(world, spawnPosition, (World w) -> new EntityTrader(w))) {
                         v.sendChatMessage(new TextComponentTranslation("message.trader.spawned"));
-                        LoggerUtils.info(TextUtils.translate("message.trader.spawned.village", villageName, TektopiaUtils.formatBlockPos(spawnPosition)), true);
+                        LoggerUtils.instance.info(TextUtils.translate("message.trader.spawned.village", villageName, TektopiaUtils.formatBlockPos(spawnPosition)), true);
                     } else {
-                        LoggerUtils.info(TextUtils.translate("message.trader.noposition.village", villageName), true);
+                        LoggerUtils.instance.info(TextUtils.translate("message.trader.noposition.village", villageName), true);
                     }
 
                 } else {
-                    LoggerUtils.info(TextUtils.translate("message.trader.exists", villageName), true);
+                    LoggerUtils.instance.info(TextUtils.translate("message.trader.exists", villageName), true);
                 }
 
             } else {
-                LoggerUtils.info(TextUtils.translate("message.trader.villagecheckfailed", villageName, villageLevel, villageCheck), true);
+                LoggerUtils.instance.info(TextUtils.translate("message.trader.villagecheckfailed", villageName, villageLevel, villageCheck), true);
             }
         });
     }
