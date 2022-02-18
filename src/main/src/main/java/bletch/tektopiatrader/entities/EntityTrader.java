@@ -4,6 +4,7 @@ import bletch.common.entities.EntityVendorBase;
 import bletch.common.entities.ai.EntityAILeaveVillage;
 import bletch.common.entities.ai.EntityAIVisitVillage;
 import bletch.common.entities.ai.EntityAIWanderVillage;
+import bletch.common.utils.StringUtils;
 import bletch.tektopiatrader.core.ModConfig;
 import bletch.tektopiatrader.core.ModDetails;
 import bletch.tektopiatrader.utils.LoggerUtils;
@@ -75,7 +76,7 @@ public class EntityTrader extends EntityVendorBase {
 
             if (ModConfig.trader.trades != null && ModConfig.trader.trades.length > 0) {
                 for (String tradeItem : ModConfig.trader.trades) {
-                    if (tradeItem == null || tradeItem.trim().equals("")) {
+            		if (StringUtils.isNullOrWhitespace(tradeItem)) {
                         continue;
                     }
 
